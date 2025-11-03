@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Registrarse - UniGo</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="icon" type="image/x-icon" href="UniGo.jpg">
+</head>
+<body>
+  <header class="cabecera">
+    <nav class="topnav">
+      <a href="index.html">Inicio</a>
+      <a href="buscar_viaje.html">Buscar viaje</a>
+      <a href="ofrecer_viaje.html">Ofrecer viaje</a>
+      <a href="mis_viajes.html">Mis viajes</a>
+      <a href="notificaciones.html">Notificaciones</a>
+      <a href="mensajes.html">Mensajes</a>
+      <a href="sobre_nosotros.html">Sobre nosotros</a>
+      <a href="contacto.html">Contacto</a>
+      <a href="admin.html">Panel Admin</a>
+      <a href="registro.html" class="activo">Registrarse</a>
+    </nav>
+  </header>
+  <main class="contenedor" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: calc(100vh - 8rem);">
+    <section class="seccion" style="width: 100%; max-width: 360px;">
+      <h1 class="titulo-pagina" style="text-align: center;">Registrarse</h1>
+      <form onsubmit="mostrarAviso('Registro simulado'); window.location.href='login.html'; return false;">
+        <label for="usuario" class="etiqueta">Usuario</label>
+        <input id="usuario" type="text" class="campo" placeholder="Nombre de usuario" required>
+        <label for="email" class="etiqueta">Email</label>
+        <input id="email" type="email" class="campo" placeholder="email@ejemplo.com" required>
+        <label for="password" class="etiqueta">Contraseña</label>
+        <input id="password" type="password" class="campo" placeholder="********" required>
+        <button type="submit" class="boton" style="width: 100%; margin-top: 1rem;">
+          Registrarse
+        </button>
+        <p style="color: #888; font-size: 0.8rem; margin-top: 1rem; text-align: center;">
+          Al registrarte, aceptas nuestros <a href="#">Términos de servicio</a> y <a href="#">Política de privacidad</a>.
+        </p>
+      </form>
+      <p style="text-align: center; margin-top: 1rem;">
+        ¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a>
+      </p>
+    </section>
+  </main>
+  <footer class="pie">
+    <img src="UniGo.jpg" alt="Logo UniGo" class="logo__img" style="height:30px; vertical-align:middle;">
+    © 2025 UniGo – Registro
+  </footer>
+  <script src="js/app.js"></script>
+</body>
+</html>

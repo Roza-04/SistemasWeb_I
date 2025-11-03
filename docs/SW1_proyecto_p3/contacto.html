@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Contacto - UniGo</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="icon" type="image/x-icon" href="UniGo.jpg">
+</head>
+<body>
+    <header class="cabecera">
+        <nav class="topnav">
+            <a href="index.html">Inicio</a>
+            <a href="buscar_viaje.html">Buscar viaje</a>
+            <a href="ofrecer_viaje.html">Ofrecer viaje</a>
+            <a href="mis_viajes.html">Mis viajes</a>
+            <a href="notificaciones.html">Notificaciones</a>
+            <a href="mensajes.html">Mensajes</a>
+            <a href="sobre_nosotros.html">Sobre nosotros</a>
+            <a href="contacto.html" class="activo">Contacto</a>
+            <a href="admin.html">Panel Admin</a>
+            <a href="perfil.html">Perfil</a>
+        </nav>
+    </header>
+    <main class="contenedor">
+        <section class="seccion">
+            <h1 class="titulo-pagina">Contáctanos</h1>
+            <p>¿Tienes alguna duda, problema o sugerencia? Escríbenos y te responderemos pronto.</p>
+            <form class="seccion" onsubmit="mostrarAviso('Mensaje enviado (simulado)'); return false;">
+                <label for="nombre" class="etiqueta">Nombre:</label>
+                <input id="nombre" type="text" class="campo" placeholder="Tu nombre completo" required>
+                <label for="email" class="etiqueta">Email:</label>
+                <input id="email" type="email" class="campo" placeholder="tuemail@ejemplo.com" required>
+                <label for="mensaje" class="etiqueta">Mensaje:</label>
+                <textarea id="mensaje" class="campo textarea" placeholder="Escribe tu mensaje aquí..." required></textarea>
+                <button type="submit" class="boton">Enviar</button>
+            </form>
+        </section>
+    </main>
+    <footer class="pie">
+        <img src="UniGo.jpg" alt="Logo UniGo" class="logo__img" style="height:30px; vertical-align:middle;">
+        © 2025 UniGo – Contacto
+    </footer>
+    <script src="js/app.js"></script>
+</body>
+</html>

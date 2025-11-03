@@ -1,0 +1,245 @@
+:root {
+    --color-fondo: #f4f4f4;
+    --color-primario: #2f2f2f;
+    --color-secundario: #5a5a5a;
+    --color-panel: #ffffff;
+    --color-borde: #cccccc;
+    --color-resaltado: #0078d7;
+    --color-peligro: #e74c3c;
+    --radio-borde: 6px;
+    --fuente-base: "Segoe UI", Tahoma, sans-serif;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.logo__img {
+    height: 42px;       
+    width: auto;
+    border-radius: 6px; 
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--fuente-base);
+    color: var(--color-primario);
+    background-color: var(--color-fondo);
+    line-height: 1.5;
+}
+
+.cabecera {
+    background-color: var(--color-panel);
+    border-bottom: 1px solid var(--color-borde);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.topnav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+}
+
+.topnav a {
+    text-decoration: none;
+    color: var(--color-secundario);
+    padding: 0.5rem 0.8rem;
+    border-radius: var(--radio-borde);
+    font-size: 0.95rem;
+    transition: background-color 0.3s;
+}
+
+.topnav a:hover,
+.topnav a.activo {
+    background-color: var(--color-resaltado);
+    color: #fff;
+}
+
+.contenedor {
+    max-width: 1100px;
+    margin: 2rem auto;
+    background-color: var(--color-panel);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-borde);
+    padding: 1.5rem;
+}
+
+.seccion {
+    margin-bottom: 2rem;
+}
+
+.titulo-pagina {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--color-resaltado);
+    padding-bottom: 0.3rem;
+}
+
+.etiqueta {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+}
+
+.campo {
+    width: 100%;
+    padding: 0.6rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-borde);
+    font-size: 1rem;
+}
+
+.campo:focus {
+    outline: none;
+    border-color: var(--color-resaltado);
+    box-shadow: 0 0 3px var(--color-resaltado);
+}
+
+.textarea {
+    min-height: 140px;
+    resize: vertical;
+}
+
+.boton {
+    background-color: var(--color-resaltado);
+    color: #fff;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: var(--radio-borde);
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.boton:hover {
+    background-color: #005fa3; 
+}
+
+.boton-secundario {
+    background-color: #fff;
+    border: 1px solid var(--color-borde);
+    color: var(--color-secundario);
+}
+
+.boton-peligro {
+    background-color: var(--color-peligro);
+}
+
+.flex {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.tarjeta {
+    background-color: #fff;
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-borde);
+    padding: 1rem;
+    flex: 1;
+    min-width: 260px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.lista-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.pie {
+    text-align: center;
+    padding: 1rem;
+    color: var(--color-secundario);
+    font-size: 0.9rem;
+}
+
+.panel-mensajes {
+    display: flex;
+    gap: 1rem;
+    min-height: 70vh;
+}
+
+.panel-mensajes__lista {
+    width: 240px;
+    background: #2d2d2d;
+    color: #fff;
+    padding: 1rem;
+    border-radius: var(--radio-borde);
+}
+
+.panel-mensajes__lista .campo {
+    margin-bottom: 1rem;
+}
+
+/* tarjetas dentro del panel lateral */
+.chat-contacto {
+    background: #fff;
+    color: #333;
+    border-radius: var(--radio-borde);
+    padding: .75rem 1rem;
+    margin-bottom: .6rem;
+    cursor: pointer;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.panel-mensajes__chat {
+    flex: 1;
+    background: var(--color-panel);
+    border-radius: var(--radio-borde);
+    padding: 1rem;
+}
+
+.panel-mensajes__cabecera {
+    background: #2d2d2d;
+    color: #fff;
+    padding: .7rem 1rem;
+    border-radius: var(--radio-borde);
+    margin-bottom: 1rem;
+}
+
+.panel-mensajes__cuerpo {
+    background: #fff;
+    border-radius: var(--radio-borde);
+    min-height: 240px;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+.panel-mensajes__form {
+    display: flex;
+    gap: .75rem;
+    align-items: center;
+}
+.panel-mensajes__form .campo {
+    flex: 1;
+}
+
+@media screen and (max-width: 768px) {
+.topnav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.flex {
+    flex-direction: column;
+}
+
+.contenedor {
+    margin: 0.5rem;
+    padding: 1rem;
+}
+}

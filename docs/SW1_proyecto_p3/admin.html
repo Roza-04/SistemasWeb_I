@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Panel de Administración - UniGo</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="icon" type="image/x-icon" href="UniGo.jpg">
+</head>
+<body>
+    <header class="cabecera">
+        <nav class="topnav">
+            <a href="index.html">Inicio</a>
+            <a href="buscar_viaje.html">Buscar viaje</a>
+            <a href="ofrecer_viaje.html">Ofrecer viaje</a>
+            <a href="mis_viajes.html">Mis viajes</a>
+            <a href="notificaciones.html">Notificaciones</a>
+            <a href="mensajes.html">Mensajes</a>
+            <a href="sobre_nosotros.html">Sobre nosotros</a>
+            <a href="contacto.html">Contacto</a>
+            <a href="admin.html" class="activo">Panel Admin</a>
+            <a href="perfil.html">Perfil</a>
+            </nav>
+    </header>
+    <main class="contenedor">
+        <section class="seccion">
+            <h1 class="titulo-pagina">Panel de Administración</h1>
+            <label class="etiqueta">¿Qué desea revisar?</label>
+            <select class="campo">
+                <option>Usuarios</option>
+                <option>Viajes</option>
+                <option>Notificaciones</option>
+            </select>
+        </section>
+        <section class="seccion flex" style="align-items: center;">
+            <label class="etiqueta">Buscar:</label>
+            <input type="text" class="campo" style="max-width: 260px;">
+            <button class="boton" onclick="mostrarAviso('Búsqueda admin simulada')">Buscar</button>
+        </section>
+        <section class="seccion lista-vertical">
+            <div class="tarjeta">Resultado 1</div>
+            <div class="tarjeta">Resultado 2</div>
+            <div class="tarjeta">Resultado 3</div>
+            <p style="margin-top: 1rem;">&lt; 1 2 3 4 5 6 7 8 9 10 ... &gt;</p>
+        </section>
+    </main>
+    <footer class="pie">
+        <img src="UniGo.jpg" alt="Logo UniGo" class="logo__img" style="height:30px; vertical-align:middle;">
+        © 2025 UniGo – Panel de Administración
+    </footer>
+    <script src="js/app.js"></script>
+</body>
+</html>

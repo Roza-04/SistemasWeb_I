@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Iniciar sesión - UniGo</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="icon" type="image/x-icon" href="UniGo.jpg">
+</head>
+<body>
+    <header class="cabecera">
+        <nav class="topnav">
+            <a href="index.html">Inicio</a>
+            <a href="buscar_viaje.html">Buscar viaje</a>
+            <a href="ofrecer_viaje.html">Ofrecer viaje</a>
+            <a href="mis_viajes.html">Mis viajes</a>
+            <a href="notificaciones.html">Notificaciones</a>
+            <a href="mensajes.html">Mensajes</a>
+            <a href="sobre_nosotros.html">Sobre nosotros</a>
+            <a href="contacto.html">Contacto</a>
+            <a href="admin.html">Panel Admin</a>
+            <a href="login.html" class="activo">Iniciar sesión</a>
+        </nav>
+    </header>
+    <main class="contenedor" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <section class="seccion" style="width: 100%; max-width: 360px; text-align: center;">
+            <h1 class="titulo-pagina" style="margin-bottom: 1rem;">Iniciar sesión</h1>
+            <form onsubmit="mostrarAviso('Login simulado'); return false;">
+                <label for="usuario" class="etiqueta">Usuario</label>
+                <input id="usuario" type="text" class="campo" placeholder="Introduce tu usuario" required>
+                <label for="password" class="etiqueta">Contraseña</label>
+                <input id="password" type="password" class="campo" placeholder="Introduce tu contraseña" required>
+                <button type="submit" class="boton" style="width: 100%; margin-top: 1rem;">
+                    Iniciar sesión
+                </button>
+            </form>
+            <p style="margin-top: 1rem;">
+                ¿No tienes cuenta? <a href="registro.html">Regístrate aquí</a>
+            </p>
+        </section>
+    </main>
+    <footer class="pie">
+        <img src="UniGo.jpg" alt="Logo UniGo" class="logo__img" style="height:30px; vertical-align:middle;">
+        © 2025 UniGo – Iniciar sesión
+    </footer>
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Buscar viaje - UniGo</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="icon" type="image/x-icon" href="UniGo.jpg">
+</head>
+<body>
+    <header class="cabecera">
+        <nav class="topnav">
+            <a href="index.html">Inicio</a>
+            <a href="buscar_viaje.html" class="activo">Buscar viaje</a>
+            <a href="ofrecer_viaje.html">Ofrecer viaje</a>
+            <a href="mis_viajes.html">Mis viajes</a>
+            <a href="notificaciones.html">Notificaciones</a>
+            <a href="mensajes.html">Mensajes</a>
+            <a href="sobre_nosotros.html">Sobre nosotros</a>
+            <a href="contacto.html">Contacto</a>
+            <a href="admin.html">Panel Admin</a>
+            <a href="perfil.html">Perfil</a>
+        </nav>
+    </header>
+    <main class="contenedor">
+        <section class="seccion">
+            <h1 class="titulo-pagina">Buscar viaje</h1>
+            <div class="flex" style="align-items: flex-end; gap: 1rem;">
+                <div style="flex: 1;">
+                <label class="etiqueta" for="origen">Origen</label>
+                <input id="origen" type="text" class="campo" placeholder="Introduce un punto de salida" />
+                </div>
+                <div style="flex: 1;">
+                    <label class="etiqueta" for="destino">Destino</label>
+                    <input id="destino" type="text" class="campo" placeholder="Introduce tu destino" />
+                </div>
+                <div style="flex: 1;">
+                    <label class="etiqueta" for="hora">Hora</label>
+                    <select id="hora" class="campo">
+                        <option>Cualquier hora</option>
+                        <option>Mañana</option>
+                        <option>Tarde</option>
+                    </select>
+                </div>
+                <button class="boton" onclick="mostrarAviso('Búsqueda simulada')">Buscar</button>
+            </div>
+        </section>
+        <section class="seccion lista-vertical">
+            <div class="tarjeta">
+            <h4>Conductor: Juan Pérez</h4>
+                <p><strong>Destino:</strong> CEU Montepríncipe</p>
+                <p><strong>Hora de salida:</strong> 08:15</p>
+                <p><strong>Importe:</strong> 3 €</p>
+                <p><strong>Salida:</strong> Av. América</p>
+            </div>
+            <div class="tarjeta">
+            <h4>Conductor: María López</h4>
+                <p><strong>Destino:</strong> CEU</p>
+                <p><strong>Hora de salida:</strong> 09:00</p>
+                <p><strong>Importe:</strong> 2,5 €</p>
+                <p><strong>Salida:</strong> Moncloa</p>
+            </div>
+        </section>
+    </main>
+    <footer class="pie">
+        <img src="UniGo.jpg" alt="Logo UniGo" class="logo__img" style="height:30px; vertical-align:middle;">
+        © 2025 UniGo – Buscar viaje
+    </footer>
+    <script src="js/app.js"></script>
+</body>
+</html>
