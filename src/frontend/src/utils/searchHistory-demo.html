@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo: searchHistory.js (Vanilla JS)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: #f9fafb;
+            padding: 20px;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .header h1 { color: #86cc49; font-size: 2rem; margin-bottom: 10px; }
+        .header p { color: #6b7280; }
+        .comparison {
+            background: #e8f5e9;
+            border-left: 4px solid #86cc49;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; color: #555; }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        button {
+            background: #86cc49;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        button:hover { background: #6da93b; transform: translateY(-2px); }
+        button.secondary { background: #f44336; margin-top: 10px; }
+        button.secondary:hover { background: #d32f2f; }
+        .history-item {
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .history-item strong { color: #333; }
+        .history-item small { color: #999; display: block; margin-top: 5px; }
+        .empty { text-align: center; color: #999; padding: 40px; font-style: italic; }
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗂️ searchHistory.js Demo</h1>
+            <p>Versión JavaScript Vanilla del módulo TypeScript</p>
+        </div>
+
+        <div class="comparison">
+            <strong>📊 Comparación de Implementaciones:</strong><br>
+            <code>searchHistory.ts</code> (TypeScript): 88 líneas con tipos<br>
+            <code>searchHistory.js</code> (JavaScript): 95 líneas sin tipos<br>
+            → <strong>Funcionalidad idéntica</strong>, solo difiere en anotaciones de tipos
+        </div>
+
+        <div class="card">
+            <h2 style="margin-bottom: 20px;">Agregar Búsqueda</h2>
+            <form id="addForm">
+                <div class="form-group">
+                    <label>Dirección</label>
+                    <input type="text" id="address" placeholder="Ej: Calle Gran Vía 10, Madrid" required>
+                </div>
+                <div class="form-group">
+                    <label>Tipo</label>
+                    <select id="fieldType">
+                        <option value="departure">Salida</option>
+                        <option value="destination">Destino</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Place ID (opcional)</label>
+                    <input type="text" id="placeId" placeholder="ChIJ...">
+                </div>
+                <button type="submit">➕ Agregar al Historial</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0;">📋 Historial</h2>
+                <button class="secondary" onclick="clearAll()" style="width: auto; padding: 8px 16px;">Limpiar Todo</button>
+            </div>
+            <div id="historyList"></div>
+        </div>
+
+        <div class="card" style="border-left: 4px solid #86cc49;">
+            <h3 style="color: #86cc49; margin-bottom: 15px;">📁 Ubicación del Archivo</h3>
+            <p><strong>TypeScript:</strong> <code>src/frontend/src/utils/searchHistory.ts</code></p>
+            <p><strong>JavaScript:</strong> <code>src/frontend/src/utils/searchHistory.js</code></p>
+            <p><strong>Demo HTML:</strong> <code>src/frontend/src/utils/searchHistory-demo.html</code></p>
+            <p style="margin-top: 15px; color: #666;">
+                ℹ️ Los tres archivos están en el <strong>mismo directorio</strong>, 
+                demostrando dominio de TypeScript Y JavaScript vanilla.
+            </p>
+        </div>
+    </div>
+
+    <script src="searchHistory.js"></script>
+    <script>
+        // Renderizar historial
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            const history = getSearchHistory();
+            
+            if (history.length === 0) {
+                list.innerHTML = '<div class="empty">No hay búsquedas guardadas</div>';
+                return;
+            }
+            
+            list.innerHTML = history.map(item => {
+                const date = new Date(item.timestamp);
+                return `
+                    <div class="history-item">
+                        <strong>${item.address}</strong>
+                        <span style="float: right; padding: 4px 12px; background: ${item.fieldType === 'departure' ? '#e3f2fd' : '#f3e5f5'}; 
+                              color: ${item.fieldType === 'departure' ? '#1976d2' : '#7b1fa2'}; border-radius: 12px; font-size: 0.85rem;">
+                            ${item.fieldType === 'departure' ? 'Salida' : 'Destino'}
+                        </span>
+                        <small>
+                            ${item.placeId ? `Place ID: ${item.placeId.substring(0, 20)}... | ` : ''}
+                            ${date.toLocaleString('es-ES')}
+                        </small>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Agregar búsqueda
+        document.getElementById('addForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const address = document.getElementById('address').value;
+            const fieldType = document.getElementById('fieldType').value;
+            const placeId = document.getElementById('placeId').value || null;
+            
+            addToSearchHistory(address, fieldType, placeId);
+            document.getElementById('address').value = '';
+            document.getElementById('placeId').value = '';
+            renderHistory();
+            
+            alert('✅ Búsqueda agregada correctamente');
+        });
+        
+        // Limpiar todo
+        function clearAll() {
+            if (confirm('¿Borrar todo el historial?')) {
+                clearSearchHistory();
+                renderHistory();
+                alert('🗑️ Historial borrado');
+            }
+        }
+        
+        // Cargar al inicio
+        renderHistory();
+        console.log('✅ searchHistory.js cargado y funcionando');
+    </script>
+</body>
+</html>

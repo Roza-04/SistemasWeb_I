@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pending Bookings - Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .pending-banner {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .pending-banner.visible {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .banner-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .banner-title {
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .banner-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+        }
+
+        .banner-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .booking-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .booking-info {
+            flex: 1;
+        }
+
+        .booking-route {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .booking-user {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .booking-time {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .control-panel {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .control-panel h2 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            background: #f5576c;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background: #e04658;
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+        }
+
+        .stat-card .number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #f5576c;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .label {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .polling-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .polling-indicator.active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .polling-indicator.inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .polling-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .polling-indicator.active .polling-dot {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .log-panel {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        .log-entry {
+            padding: 4px 0;
+            color: #666;
+        }
+
+        .log-entry .time {
+            color: #999;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 Pending Bookings Manager</h1>
+        <p class="subtitle">Sistema de polling para solicitudes de reserva pendientes</p>
+
+        <div id="pollingIndicator" class="polling-indicator inactive">
+            <span class="polling-dot"></span>
+            <span>Polling Inactivo</span>
+        </div>
+
+        <div id="pendingBanner" class="pending-banner">
+            <div class="banner-header">
+                <div class="banner-title" id="bannerTitle">Tienes solicitudes pendientes</div>
+                <button class="banner-close" onclick="dismissBanner()">×</button>
+            </div>
+            <div id="bookingsList"></div>
+        </div>
+
+        <div class="control-panel">
+            <h2>⚙️ Controles</h2>
+            <button onclick="startDemo()">▶️ Iniciar Polling</button>
+            <button onclick="addBooking()">➕ Agregar Reserva</button>
+            <button onclick="clearBookings()">🗑️ Limpiar Reservas</button>
+            <button onclick="refreshData()">🔄 Actualizar Ahora</button>
+            <button onclick="stopDemo()" style="background: #6c757d;">⏹️ Detener</button>
+        </div>
+
+        <div class="control-panel">
+            <h2>📊 Estadísticas</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="number" id="totalPending">0</div>
+                    <div class="label">Reservas Pendientes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="pollCount">0</div>
+                    <div class="label">Consultas Realizadas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="lastUpdate">--:--</div>
+                    <div class="label">Última Actualización</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <h2>📝 Log de Actividad</h2>
+            <div class="log-panel" id="logPanel"></div>
+        </div>
+    </div>
+
+    <script src="usePendingBookings-vanilla.js"></script>
+    <script>
+        // Crear instancia
+        const bookingsManager = new PendingBookingsManager();
+        let pollCount = 0;
+        let mockBookings = [];
+
+        // Escuchar cambios de estado
+        bookingsManager.addListener((state) => {
+            updateUI(state);
+        });
+
+        function updateUI(state) {
+            const { summary, visible } = state;
+
+            // Actualizar banner
+            const banner = document.getElementById('pendingBanner');
+            if (visible && summary && summary.total_pending > 0) {
+                banner.classList.add('visible');
+                document.getElementById('bannerTitle').textContent = 
+                    `Tienes ${summary.total_pending} solicitud${summary.total_pending !== 1 ? 'es' : ''} pendiente${summary.total_pending !== 1 ? 's' : ''}`;
+                
+                // Renderizar lista de reservas
+                const bookingsList = document.getElementById('bookingsList');
+                if (summary.bookings && summary.bookings.length > 0) {
+                    bookingsList.innerHTML = summary.bookings.map(booking => `
+                        <div class="booking-item">
+                            <div class="booking-info">
+                                <div class="booking-route">${booking.route}</div>
+                                <div class="booking-user">De: ${booking.passenger_name}</div>
+                                <div class="booking-time">${booking.time}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } else {
+                banner.classList.remove('visible');
+            }
+
+            // Actualizar estadísticas
+            document.getElementById('totalPending').textContent = summary?.total_pending || 0;
+        }
+
+        function addLog(message) {
+            const logPanel = document.getElementById('logPanel');
+            const time = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `<span class="time">[${time}]</span>${message}`;
+            logPanel.insertBefore(entry, logPanel.firstChild);
+
+            // Mantener solo últimas 20 entradas
+            while (logPanel.children.length > 20) {
+                logPanel.removeChild(logPanel.lastChild);
+            }
+        }
+
+        function startDemo() {
+            // Simular token y datos
+            const mockToken = 'demo_token_123';
+            bookingsManager.API_URL = 'demo'; // Modo demo sin llamadas reales
+
+            const indicator = document.getElementById('pollingIndicator');
+            indicator.className = 'polling-indicator active';
+            indicator.innerHTML = '<span class="polling-dot"></span><span>Polling Activo (cada 5s)</span>';
+
+            addLog('Polling iniciado');
+
+            // Override fetchSummary para modo demo
+            bookingsManager.fetchSummary = async function() {
+                pollCount++;
+                document.getElementById('pollCount').textContent = pollCount;
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+
+                this.summary = {
+                    total_pending: mockBookings.length,
+                    bookings: mockBookings
+                };
+
+                if (this.summary.total_pending > 0) {
+                    this.setVisible(true);
+                } else {
+                    this.setVisible(false);
+                }
+
+                addLog(`Consulta #${pollCount}: ${mockBookings.length} reservas pendientes`);
+            };
+
+            bookingsManager.init(mockToken);
+        }
+
+        function addBooking() {
+            const routes = ['Madrid → Barcelona', 'Valencia → Sevilla', 'Bilbao → Granada', 'Zaragoza → Málaga'];
+            const names = ['Ana García', 'Carlos Ruiz', 'María López', 'Juan Pérez'];
+            
+            const booking = {
+                route: routes[Math.floor(Math.random() * routes.length)],
+                passenger_name: names[Math.floor(Math.random() * names.length)],
+                time: new Date().toLocaleTimeString()
+            };
+
+            mockBookings.push(booking);
+            addLog(`Nueva reserva agregada: ${booking.route}`);
+            
+            if (bookingsManager.intervalId) {
+                bookingsManager.fetchSummary();
+            }
+        }
+
+        function clearBookings() {
+            mockBookings = [];
+            addLog('Todas las reservas eliminadas');
+            
+            if (bookingsManager.intervalId) {
+                bookingsManager.fetchSummary();
+            }
+        }
+
+        function refreshData() {
+            if (bookingsManager.intervalId) {
+                bookingsManager.refresh();
+                addLog('Actualización manual solicitada');
+            } else {
+                addLog('⚠️ Inicia el polling primero');
+            }
+        }
+
+        function dismissBanner() {
+            bookingsManager.dismiss();
+            addLog('Banner cerrado');
+        }
+
+        function stopDemo() {
+            bookingsManager.destroy();
+            pollCount = 0;
+            document.getElementById('pollCount').textContent = 0;
+            
+            const indicator = document.getElementById('pollingIndicator');
+            indicator.className = 'polling-indicator inactive';
+            indicator.innerHTML = '<span class="polling-dot"></span><span>Polling Inactivo</span>';
+
+            addLog('Polling detenido');
+        }
+
+        // Inicializar UI
+        updateUI(bookingsManager.getState());
+        addLog('Sistema inicializado');
+    </script>
+</body>
+</html>

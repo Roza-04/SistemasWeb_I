@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actividad - UniGO</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, sans-serif; background: #f9fafb; padding: 20px; }
+        .header { background: white; padding: 24px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .header h1 { color: #333; }
+        .trips-section { background: white; padding: 24px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .trips-section h2 { color: #333; margin-bottom: 16px; }
+        .trips-list { display: flex; flex-direction: column; gap: 16px; }
+        .trip-card { background: #f9fafb; padding: 16px; border-radius: 8px; border-left: 4px solid #86cc49; }
+        .trip-card.completed { border-left-color: #999; opacity: 0.8; }
+        .trip-route { font-size: 1.125rem; margin-bottom: 8px; }
+        .trip-info { display: flex; gap: 16px; font-size: 0.9rem; color: #666; margin-bottom: 8px; }
+        .trip-driver { color: #666; font-size: 0.9rem; }
+        .empty-message { color: #999; text-align: center; padding: 32px; }
+    </style>
+</head>
+<body>
+    <div id="activityContainer"></div>
+    <script src="page.js"></script>
+    <script>
+        const activityPage = new ActivityPage();
+        activityPage.init('activityContainer');
+    </script>
+</body>
+</html>

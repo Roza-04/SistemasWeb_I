@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Completion Checker - Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .progress-section {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            padding: 30px;
+            border-radius: 12px;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: white;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            font-weight: bold;
+            color: #11998e;
+            font-size: 12px;
+        }
+
+        .checklist {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .check-item {
+            padding: 15px;
+            border-radius: 8px;
+            background: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .check-item.complete {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .check-item.incomplete {
+            background: rgba(255, 255, 255, 0.1);
+            opacity: 0.7;
+        }
+
+        .check-icon {
+            font-size: 20px;
+        }
+
+        .profiles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .profile-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .profile-card:hover {
+            border-color: #11998e;
+            box-shadow: 0 4px 12px rgba(17, 153, 142, 0.2);
+        }
+
+        .profile-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .mini-progress {
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .mini-progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            transition: width 0.5s ease;
+        }
+
+        .field-list {
+            margin-top: 15px;
+        }
+
+        .field-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .field-item.complete {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .field-item.incomplete {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        button {
+            background: #11998e;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background: #0e7c6e;
+            transform: translateY(-2px);
+        }
+
+        .completion-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .completion-badge.complete {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .completion-badge.incomplete {
+            background: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Profile Completion Checker</h1>
+        <p class="subtitle">Sistema de verificación de completitud de perfiles</p>
+
+        <div class="progress-section" id="mainProgress">
+            <h2 style="margin-bottom: 10px;">Perfil de Ejemplo</h2>
+            <div class="progress-bar">
+                <div class="progress-fill" id="mainProgressFill"></div>
+            </div>
+            <div class="checklist" id="mainChecklist"></div>
+        </div>
+
+        <h2 style="margin-bottom: 20px; color: #333;">📋 Casos de Prueba</h2>
+        <div class="profiles-grid" id="profilesGrid"></div>
+
+        <button onclick="randomizeProfiles()">🎲 Generar Perfiles Aleatorios</button>
+    </div>
+
+    <script src="checkProfileCompletion-vanilla.js"></script>
+    <script>
+        // Perfil principal
+        let mainProfile = {
+            full_name: 'Ana García Martínez',
+            university: 'Universidad Complutense de Madrid',
+            degree: 'Ingeniería Informática',
+            course: 3,
+            home_address: {
+                formatted_address: 'Calle Mayor 1, Madrid',
+                place_id: 'ChIJ...',
+                lat: 40.4168,
+                lng: -3.7038
+            }
+        };
+
+        function updateMainProgress() {
+            const status = getProfileCompletionStatus(mainProfile);
+            const fill = document.getElementById('mainProgressFill');
+            const checklist = document.getElementById('mainChecklist');
+
+            fill.style.width = status.percentage + '%';
+            fill.textContent = status.percentage + '%';
+
+            const fieldNames = {
+                full_name: 'Nombre completo',
+                university: 'Universidad',
+                degree: 'Carrera',
+                course: 'Curso',
+                home_address: 'Dirección'
+            };
+
+            checklist.innerHTML = '';
+            Object.entries(status.fields).forEach(([key, value]) => {
+                const item = document.createElement('div');
+                item.className = `check-item ${value ? 'complete' : 'incomplete'}`;
+                item.innerHTML = `
+                    <span class="check-icon">${value ? '✅' : '⭕'}</span>
+                    <span>${fieldNames[key]}</span>
+                `;
+                checklist.appendChild(item);
+            });
+        }
+
+        const testProfiles = [
+            {
+                name: '100% Completo',
+                user: {
+                    full_name: 'Carlos Pérez',
+                    university: 'UAM',
+                    degree: 'Derecho',
+                    course: 2,
+                    home_address: { formatted_address: 'Madrid', place_id: 'x', lat: 40, lng: -3 }
+                }
+            },
+            {
+                name: 'Sin Universidad',
+                user: {
+                    full_name: 'María López',
+                    university: '',
+                    degree: 'Medicina',
+                    course: 4,
+                    home_address: { formatted_address: 'Barcelona', place_id: 'y', lat: 41, lng: 2 }
+                }
+            },
+            {
+                name: 'Sin Dirección',
+                user: {
+                    full_name: 'Juan Ruiz',
+                    university: 'UPM',
+                    degree: 'Arquitectura',
+                    course: 1,
+                    home_address: null
+                }
+            },
+            {
+                name: 'Casi Completo',
+                user: {
+                    full_name: 'Laura Sánchez',
+                    university: 'UCM',
+                    degree: '',
+                    course: 3,
+                    home_address: { formatted_address: 'Valencia', place_id: 'z', lat: 39, lng: -0 }
+                }
+            }
+        ];
+
+        function renderProfiles() {
+            const grid = document.getElementById('profilesGrid');
+            grid.innerHTML = '';
+
+            testProfiles.forEach(profile => {
+                const status = getProfileCompletionStatus(profile.user);
+                
+                const card = document.createElement('div');
+                card.className = 'profile-card';
+                
+                const fieldNames = {
+                    full_name: 'Nombre',
+                    university: 'Universidad',
+                    degree: 'Carrera',
+                    course: 'Curso',
+                    home_address: 'Dirección'
+                };
+
+                let fieldsHTML = '';
+                Object.entries(status.fields).forEach(([key, value]) => {
+                    fieldsHTML += `
+                        <div class="field-item ${value ? 'complete' : 'incomplete'}">
+                            <span>${value ? '✅' : '❌'}</span>
+                            <span>${fieldNames[key]}</span>
+                        </div>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="completion-badge ${status.isComplete ? 'complete' : 'incomplete'}">
+                        ${status.percentage}%
+                    </div>
+                    <h3>${profile.name}</h3>
+                    <div class="mini-progress">
+                        <div class="mini-progress-fill" style="width: ${status.percentage}%"></div>
+                    </div>
+                    <div class="field-list">${fieldsHTML}</div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        function randomizeProfiles() {
+            const names = ['Pedro', 'Lucía', 'Miguel', 'Carmen', 'David'];
+            const unis = ['UAM', 'UCM', 'UPM', '', 'UV'];
+            const degrees = ['Ingeniería', 'Medicina', '', 'Derecho', 'Física'];
+            
+            testProfiles.length = 0;
+            for (let i = 0; i < 4; i++) {
+                const hasAddress = Math.random() > 0.3;
+                testProfiles.push({
+                    name: `Perfil ${i + 1}`,
+                    user: {
+                        full_name: Math.random() > 0.2 ? names[i] + ' Test' : '',
+                        university: unis[Math.floor(Math.random() * unis.length)],
+                        degree: degrees[Math.floor(Math.random() * degrees.length)],
+                        course: Math.random() > 0.2 ? Math.floor(Math.random() * 4) + 1 : 0,
+                        home_address: hasAddress ? { formatted_address: 'Test', place_id: 'x', lat: 40, lng: -3 } : null
+                    }
+                });
+            }
+            renderProfiles();
+        }
+
+        // Inicializar
+        updateMainProgress();
+        renderProfiles();
+    </script>
+</body>
+</html>

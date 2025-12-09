@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Viajes - UniGO</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, sans-serif; background: #f9fafb; padding: 20px; }
+        .header { background: white; padding: 24px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .tabs { display: flex; gap: 8px; margin-bottom: 24px; background: white; padding: 8px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .tab { flex: 1; padding: 12px; background: transparent; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .tab.active { background: #86cc49; color: white; }
+        .rides-list { display: flex; flex-direction: column; gap: 16px; }
+        .ride-card { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .ride-card.completed { opacity: 0.7; }
+        .ride-header { margin-bottom: 12px; }
+        .badge { padding: 4px 12px; border-radius: 12px; font-size: 0.875rem; font-weight: 600; }
+        .badge.active { background: #e8f5e9; color: #2e7d32; }
+        .badge.inactive { background: #ffebee; color: #c62828; }
+        .ride-route { font-size: 1.25rem; margin-bottom: 12px; }
+        .ride-info { display: flex; gap: 16px; flex-wrap: wrap; color: #666; margin-bottom: 16px; }
+        .ride-actions { display: flex; gap: 12px; }
+        .btn-secondary, .btn-danger { padding: 8px 16px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .btn-secondary { background: #e0e0e0; color: #333; }
+        .btn-danger { background: #dc3545; color: white; }
+    </style>
+</head>
+<body>
+    <div id="ridesContainer"></div>
+    <script src="page.js"></script>
+    <script>
+        const ridesPage = new MyRidesPage();
+        ridesPage.init('ridesContainer');
+    </script>
+</body>
+</html>

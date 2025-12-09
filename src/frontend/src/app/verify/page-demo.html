@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar Email - UniGO</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, sans-serif; background: linear-gradient(135deg, #f9fafb 0%, #e8f5e9 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .verify-container { background: white; padding: 48px 40px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); max-width: 500px; width: 100%; }
+        .verify-header { text-align: center; margin-bottom: 32px; }
+        .logo { font-size: 1.5rem; margin-bottom: 16px; }
+        .logo strong { color: #86cc49; }
+        .verify-header h2 { color: #333; margin-bottom: 12px; }
+        .verify-header p { color: #666; }
+        .code-inputs { display: flex; gap: 12px; justify-content: center; margin-bottom: 24px; }
+        .code-input { width: 50px; height: 60px; text-align: center; font-size: 1.5rem; font-weight: bold; border: 2px solid #e0e0e0; border-radius: 8px; transition: all 0.3s; }
+        .code-input:focus { outline: none; border-color: #86cc49; box-shadow: 0 0 0 3px rgba(134, 204, 73, 0.1); }
+        .error-message { background: #ffebee; color: #c62828; padding: 12px; border-radius: 8px; margin-bottom: 16px; text-align: center; font-size: 0.9rem; }
+        .submit-btn { width: 100%; padding: 14px; background: #86cc49; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .submit-btn:hover { background: #75b83d; }
+        .footer-links { margin-top: 24px; text-align: center; }
+        .footer-links a { color: #86cc49; text-decoration: none; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div id="verifyContainer"></div>
+    <script src="page.js"></script>
+    <script>
+        const verifyPage = new VerifyPage();
+        verifyPage.init('verifyContainer');
+    </script>
+</body>
+</html>

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realtime Notifications - Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .notification-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification-banner.visible {
+            display: flex;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .notification-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .notification-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+        }
+
+        .notification-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .control-panel {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .control-panel h2 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        button.danger {
+            background: #dc3545;
+        }
+
+        button.danger:hover {
+            background: #c82333;
+        }
+
+        .status-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .status-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .status-card .label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .status-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .chat-list {
+            margin-top: 20px;
+        }
+
+        .chat-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid #e0e0e0;
+        }
+
+        .chat-item .chat-info {
+            flex: 1;
+        }
+
+        .chat-item .chat-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .chat-item .chat-user {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .chat-item .unread-badge {
+            background: #dc3545;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .connection-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .connection-status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .connection-status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .connection-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔔 Realtime Notifications</h1>
+        <p class="subtitle">Sistema de notificaciones en tiempo real con WebSocket</p>
+
+        <div id="connectionStatus" class="connection-status disconnected">
+            <span class="connection-dot"></span>
+            <span>Desconectado</span>
+        </div>
+
+        <div id="notificationBanner" class="notification-banner">
+            <div class="notification-content">
+                <div class="notification-title" id="notificationTitle">Tienes mensajes nuevos</div>
+                <div class="notification-subtitle" id="notificationSubtitle">3 mensajes sin leer</div>
+            </div>
+            <button class="notification-close" onclick="dismissNotification()">×</button>
+        </div>
+
+        <div class="control-panel">
+            <h2>⚙️ Controles</h2>
+            <button onclick="connectDemo()">🔌 Conectar (Demo)</button>
+            <button onclick="simulateMessage()">💬 Simular Mensaje</button>
+            <button onclick="disconnectDemo()" class="danger">❌ Desconectar</button>
+        </div>
+
+        <div class="control-panel">
+            <h2>📊 Estado Actual</h2>
+            <div class="status-panel" id="statusPanel">
+                <div class="status-card">
+                    <div class="label">Mensajes Sin Leer</div>
+                    <div class="value" id="totalUnread">0</div>
+                </div>
+                <div class="status-card">
+                    <div class="label">Chats Activos</div>
+                    <div class="value" id="totalChats">0</div>
+                </div>
+                <div class="status-card">
+                    <div class="label">Último Mensaje ID</div>
+                    <div class="value" id="maxMessageId">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <h2>💬 Chats con Mensajes</h2>
+            <div class="chat-list" id="chatList">
+                <p style="color: #666; text-align: center; padding: 20px;">No hay mensajes sin leer</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="useRealtimeNotifications-vanilla.js"></script>
+    <script>
+        // Crear instancia
+        const notifications = new RealtimeNotifications();
+
+        // Escuchar cambios de estado
+        notifications.addListener((state) => {
+            updateUI(state);
+        });
+
+        function updateUI(state) {
+            const { summary, visible } = state;
+
+            // Actualizar banner
+            const banner = document.getElementById('notificationBanner');
+            if (visible) {
+                banner.classList.add('visible');
+                document.getElementById('notificationTitle').textContent = 
+                    `Tienes ${summary?.total_unread || 0} mensaje${summary?.total_unread !== 1 ? 's' : ''} nuevo${summary?.total_unread !== 1 ? 's' : ''}`;
+                document.getElementById('notificationSubtitle').textContent = 
+                    `En ${summary?.chats?.length || 0} chat${summary?.chats?.length !== 1 ? 's' : ''}`;
+            } else {
+                banner.classList.remove('visible');
+            }
+
+            // Actualizar estadísticas
+            document.getElementById('totalUnread').textContent = summary?.total_unread || 0;
+            document.getElementById('totalChats').textContent = summary?.chats?.length || 0;
+            document.getElementById('maxMessageId').textContent = summary?.max_message_id || 0;
+
+            // Actualizar lista de chats
+            const chatList = document.getElementById('chatList');
+            if (summary?.chats && summary.chats.length > 0) {
+                chatList.innerHTML = summary.chats.map(chat => `
+                    <div class="chat-item">
+                        <div class="chat-info">
+                            <div class="chat-title">${chat.trip_title || 'Chat'}</div>
+                            <div class="chat-user">Con ${chat.other_user_name || 'Usuario'}</div>
+                        </div>
+                        <div class="unread-badge">${chat.unread_count}</div>
+                    </div>
+                `).join('');
+            } else {
+                chatList.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">No hay mensajes sin leer</p>';
+            }
+        }
+
+        function connectDemo() {
+            // Simular conexión con datos de prueba
+            const mockToken = 'demo_token_123';
+            const connStatus = document.getElementById('connectionStatus');
+            connStatus.className = 'connection-status connected';
+            connStatus.innerHTML = '<span class="connection-dot"></span><span>Conectado (Demo)</span>';
+
+            // Simular datos iniciales
+            notifications.summary = {
+                total_unread: 3,
+                max_message_id: 105,
+                chats: [
+                    { chat_id: 1, unread_count: 2, last_message_id: 104, trip_title: 'Madrid → Barcelona', other_user_name: 'Ana García' },
+                    { chat_id: 2, unread_count: 1, last_message_id: 105, trip_title: 'Valencia → Sevilla', other_user_name: 'Carlos Ruiz' }
+                ]
+            };
+            notifications.maxMessageId = 105;
+            notifications.setVisible(true);
+        }
+
+        function simulateMessage() {
+            const current = notifications.summary || { total_unread: 0, max_message_id: 0, chats: [] };
+            const newMessageId = current.max_message_id + 1;
+
+            notifications.summary = {
+                total_unread: current.total_unread + 1,
+                max_message_id: newMessageId,
+                chats: [
+                    ...current.chats,
+                    { 
+                        chat_id: Date.now(), 
+                        unread_count: 1, 
+                        last_message_id: newMessageId, 
+                        trip_title: 'Nuevo Viaje', 
+                        other_user_name: 'Usuario ' + Math.floor(Math.random() * 100) 
+                    }
+                ]
+            };
+            notifications.maxMessageId = newMessageId;
+            notifications.setVisible(true);
+        }
+
+        function dismissNotification() {
+            notifications.dismiss();
+        }
+
+        function disconnectDemo() {
+            notifications.disconnect();
+            const connStatus = document.getElementById('connectionStatus');
+            connStatus.className = 'connection-status disconnected';
+            connStatus.innerHTML = '<span class="connection-dot"></span><span>Desconectado</span>';
+        }
+
+        // Inicializar UI
+        updateUI(notifications.getState());
+    </script>
+</body>
+</html>

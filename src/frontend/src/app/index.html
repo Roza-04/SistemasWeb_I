@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniGO - Demos Vanilla JS/HTML</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f9fafb 0%, #e8f5e9 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .logo-icon {
+            font-size: 4rem;
+        }
+        
+        .logo h1 {
+            font-size: 3rem;
+            color: #86cc49;
+            font-weight: bold;
+        }
+        
+        .subtitle {
+            font-size: 1.25rem;
+            color: #666;
+            margin-bottom: 16px;
+        }
+        
+        .badges {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .stats {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #86cc49;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .section {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 32px;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .section-icon {
+            font-size: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.75rem;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+        
+        .demo-card {
+            background: #f9fafb;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .demo-card:hover {
+            border-color: #86cc49;
+            box-shadow: 0 8px 24px rgba(134, 204, 73, 0.2);
+            transform: translateY(-4px);
+        }
+        
+        .demo-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+        
+        .demo-title {
+            font-size: 1.125rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .demo-lines {
+            font-size: 0.75rem;
+            color: #86cc49;
+            font-weight: 600;
+        }
+        
+        .demo-description {
+            font-size: 0.875rem;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+        
+        .demo-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .feature-tag {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            color: #666;
+        }
+        
+        .demo-button {
+            width: 100%;
+            padding: 12px;
+            background: #86cc49;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+        
+        .demo-button:hover {
+            background: #75b83d;
+        }
+        
+        .comparison {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .comparison h3 {
+            color: #856404;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+        
+        .comparison-item {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+        }
+        
+        .comparison-item h4 {
+            color: #333;
+            margin-bottom: 12px;
+        }
+        
+        .comparison-item ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .comparison-item li {
+            padding: 4px 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .comparison-item li:before {
+            content: "✓ ";
+            color: #86cc49;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 32px;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .logo h1 {
+                font-size: 2rem;
+            }
+            
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">🚗</div>
+                <h1>UniGO</h1>
+            </div>
+            <p class="subtitle">Demos HTML/CSS/JavaScript Vanilla</p>
+            <p style="color: #999; margin-bottom: 16px;">
+                Versiones sin React/TypeScript de la aplicación de carsharing universitario
+            </p>
+            <div class="badges">
+                <span class="badge">HTML5</span>
+                <span class="badge">CSS3</span>
+                <span class="badge">JavaScript ES6+</span>
+                <span class="badge">No Frameworks</span>
+                <span class="badge">DOM Manipulation</span>
+            </div>
+        </header>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value">19</div>
+                <div class="stat-label">Archivos JS convertidos</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">18</div>
+                <div class="stat-label">Demos HTML interactivos</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">~67%</div>
+                <div class="stat-label">Reducción de código</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">100%</div>
+                <div class="stat-label">Funcional</div>
+            </div>
+        </div>
+
+        <div class="comparison">
+            <h3>📊 Comparación: React/TypeScript vs Vanilla JS</h3>
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <h4>Proyecto Original (React)</h4>
+                    <ul>
+                        <li>15,257 líneas de código</li>
+                        <li>49 archivos .tsx</li>
+                        <li>11 archivos .ts</li>
+                        <li>React 19 + Next.js 15</li>
+                        <li>TypeScript 5</li>
+                        <li>Tailwind CSS 4</li>
+                    </ul>
+                </div>
+                <div class="comparison-item">
+                    <h4>Versión Vanilla (Esta)</h4>
+                    <ul>
+                        <li>~1,465 líneas JavaScript</li>
+                        <li>13 archivos .js</li>
+                        <li>12 archivos .html</li>
+                        <li>HTML5 puro</li>
+                        <li>JavaScript ES6+</li>
+                        <li>CSS3 nativo</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Páginas -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">📄</div>
+                <h2 class="section-title">Páginas de la Aplicación</h2>
+            </div>
+            <div class="demo-grid">
+                <div class="demo-card" onclick="window.location.href='page-demo.html'">
+                    <div class="demo-card-header">
+                        <div>
+                            <div class="demo-title">Home / Búsqueda</div>
+                            <div class="demo-lines">683 → 250 líneas</div>
+                        </div>
+                    </div>
+                    <p class="demo-description">
+                        Página principal con buscador de viajes, formulario, resultados y secciones de features.
+                    </p>
+                    <div class="demo-features">
+                        <span class="feature-tag">Formularios</span>
+                        <span class="feature-tag">Búsqueda</span>
+                        <span class="feature-tag">Grid Layout</span>
+                    </div>
+                    <a href="page-demo.html" class="demo-button">🔍 Ver Demo</a>
+                </div>
+
+                <div class="demo-card" onclick="window.location.href='login/page-demo.html'">
+                    <div class="demo-card-header">
+                        <div>
+                            <div class="demo-title">Login</div>
+                            <div class="demo-lines">254 → 200 líneas</div>
+                        </div>
+                    </div>
+                    <p class="demo-description">
+                        Página de inicio de sesión con validación, manejo de errores y autenticación.
+                    </p>
+                    <div class="demo-features">
+                        <span class="feature-tag">Fetch API</span>
+                        <span class="feature-tag">LocalStorage</span>
+                        <span class="feature-tag">Validación</span>
+                    </div>
+                    <a href="login/page-demo.html" class="demo-button">🔐 Ver Demo</a>
+                </div>
+
+                <div class="demo-card" onclick="window.location.href='register/page-demo.html'">
+                    <div class="demo-card-header">
+                        <div>
+                            <div class="demo-title">Registro</div>
+                            <div class="demo-lines">150 → 120 líneas</div>
+                        </div>
+                    </div>
+                    <p class="demo-description">
+                        Formulario de registro de usuario con validación de email universitario.
+                    </p>
+                    <div class="demo-features">
+                        <span class="feature-tag">Formularios</span>
+                        <span class="feature-tag">API REST</span>
+                        <span class="feature-tag">Validación</span>
+                    </div>
+                    <a href="register/page-demo.html" class="demo-button">📝 Ver Demo</a>
+                </div>
+
+                <div class="demo-card" onclick="window.location.href='post-ride/page-demo.html'">
+                    <div class="demo-card-header">
+                        <div>
+                            <div class="demo-title">Publicar Viaje</div>
+                            <div class="demo-lines">1,005 → 200 líneas</div>
+                        </div>
+                    </div>
+                    <p class="demo-description">
+                        Formulario complejo para publicar un viaje con múltiples campos y validaciones.
+                    </p>
+                    <div class="demo-features">
+                        <span class="feature-tag">Formulario complejo</span>
+                        <span class="feature-tag">Selects dinámicos</span>
+                        <span class="feature-tag">Date/Time inputs</span>
+                    </div>
+                    <a href="post-ride/page-demo.html" class="demo-button">🚗 Ver Demo</a>
+                </div>
+
+                <div class="demo-card" onclick="window.location.href='profile/page-demo.html'">
+                    <div class="demo-card-header">
+                        <div>
+                            <div class="demo-title">Perfil de Usuario</div>
+                            <div class="demo-lines">634 → 150 líneas</div>
+                        </div>
+                    </div>
+                    <p class="demo-description">
+                        Página de perfil con edición de datos, subida de avatar y estadísticas.
+                    </p>
+                    <div class="demo-features">
+                        <span class="feature-tag">Edición inline</span>
+                        <span class="feature-tag">File upload</span>
+                        <span class="feature-tag">Estado dinámico</span>
+                    </div>
+                    <a href="profile/page-demo.html" class="demo-button">👤 Ver Demo</a>
+                </div>
+
+                <div class="demo-card" onclick="window.location.href='chat/[tripId]/page-demo.html'">
+                    <div class="demo-card-header">
+                        <div>
+                            <div class="demo-title">Chat</div>
+                            <div class="demo-lines">127 → 100 líneas</div>
+                        </div>
+                    </div>
+                    <p class="demo-description">
+                        Sistema de mensajería en tiempo real con interfaz de chat interactiva.
+                    </p>
+                    <div class="demo-features">
+                        <span class="feature-tag">Real-time</span>
+                        <span class="feature-tag">Mensajes</span>
+                        <span class="feature-tag">Auto-scroll</span>
+                    </div>
+                    <a href="chat/[tripId]/page-demo.html" class="demo-button">💬 Ver Demo</a>
+                </div>
+
+                <div class="demo-card" onclick="window.location.href='my-rides/page-demo.html'">
+                    <div class="demo-card-header">
+                        <div>
+                            <div class="demo-title">Mis Viajes</div>
+                            <div class="demo-lines">1,246 → 150 líneas</div>
+                        </div>
+                    </div>
+                    <p class="demo-description">
+                        Gestión completa de viajes como conductor y pasajero con pestañas e historial.
+                    </p>
+                    <div class="demo-features">
+                        <span class="feature-tag">Tabs</span>
+                        <span class="feature-tag">CRUD</span>
+                        <span class="feature-tag">Estado complejo</span>
+                    </div>
+                    <a href="my-rides/page-demo.html" class="demo-button">🚗 Ver Demo</a>
+                </div>
+
+                <div class="demo-card" onclick="window.location.href='activity/page-demo.html'">
+                    <div class="demo-card-header">
+                        <div>
+                            <div class="demo-title">Actividad</div>
+                            <div class="demo-lines">234 → 100 líneas</div>
+                        </div>
+                    </div>
+                    <p class="demo-description">
+                        Vista de actividad con viajes próximos y pasados, estadísticas.
+                    </p>
+                    <div class="demo-features">
+                        <span class="feature-tag">Dashboard</span>
+                        <span class="feature-tag">Filtros</span>
+                        <span class="feature-tag">Mapas</span>
+                    </div>
+                    <a href="activity/page-demo.html" class="demo-button">📊 Ver Demo</a>
+                </div>
+
+                <div class="demo-card" onclick="window.location.href='verify/page-demo.html'">
+                    <div class="demo-card-header">
+                        <div>
+                            <div class="demo-title">Verificación Email</div>
+                            <div class="demo-lines">305 → 100 líneas</div>
+                        </div>
+                    </div>
+                    <p class="demo-description">
+                        Verificación de código de 6 dígitos con auto-submit y manejo de paste.
+                    </p>
+                    <div class="demo-features">
+                        <span class="feature-tag">Code input</span>
+                        <span class="feature-tag">Auto-submit</span>
+                        <span class="feature-tag">UX avanzado</span>
+                    </div>
+                    <a href="verify/page-demo.html" class="demo-button">✅ Ver Demo</a>
+                </div>
+
+                <div class="demo-card" onclick="window.location.href='my-cards/page-demo.html'">
+                    <div class="demo-card-header">
+                        <div>
+                            <div class="demo-title">Mis Tarjetas</div>
+                            <div class="demo-lines">433 → 120 líneas</div>
+                        </div>
+                    </div>
+                    <p class="demo-description">
+                        Gestión de métodos de pago: tarjetas de crédito y cuenta bancaria.
+                    </p>
+                    <div class="demo-features">
+                        <span class="feature-tag">Payments</span>
+                        <span class="feature-tag">CRUD</span>
+                        <span class="feature-tag">Stripe</span>
+                    </div>
+                    <a href="my-cards/page-demo.html" class="demo-button">💳 Ver Demo</a>
+                </div>
+
+                <div class="demo-card" onclick="window.location.href='registro/page-demo.html'">
+                    <div class="demo-card-header">
+                        <div>
+                            <div class="demo-title">Historial y Valoraciones</div>
+                            <div class="demo-lines">535 → 80 líneas</div>
+                        </div>
+                    </div>
+                    <p class="demo-description">
+                        Registro completo de viajes con sistema de valoraciones y ratings.
+                    </p>
+                    <div class="demo-features">
+                        <span class="feature-tag">Historial</span>
+                        <span class="feature-tag">Ratings</span>
+                        <span class="feature-tag">Reviews</span>
+                    </div>
+                    <a href="registro/page-demo.html" class="demo-button">📜 Ver Demo</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Componentes -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">🎨</div>
+                <h2 class="section-title">Componentes</h2>
+            </div>
+            <div class="demo-grid">
+                <div class="demo-card" onclick="window.location.href='../components/RideCard-demo.html'">
+                    <div class="demo-card-header">
+                        <div>
+                            <div class="demo-title">RideCard</div>
+                            <div class="demo-lines">224 → 150 líneas</div>
+                        </div>
+                    </div>
+                    <p class="demo-description">
+                        Tarjeta de viaje con toda la información: conductor, precio, horarios, valoraciones.
+                    </p>
+                    <div class="demo-features">
+                        <span class="feature-tag">Formato fechas</span>
+                        <span class="feature-tag">Card design</span>
+                        <span class="feature-tag">Hover effects</span>
+                    </div>
+                    <a href="../components/RideCard-demo.html" class="demo-button">🎫 Ver Demo</a>
+                </div>
+
+                <div class="demo-card" onclick="window.location.href='../components/AddressAutocomplete-demo.html'">
+                    <div class="demo-card-header">
+                        <div>
+                            <div class="demo-title">AddressAutocomplete</div>
+                            <div class="demo-lines">1,348 → 200 líneas</div>
+                        </div>
+                    </div>
+                    <p class="demo-description">
+                        Autocompletado de direcciones integrado con Google Maps Places API.
+                    </p>
+                    <div class="demo-features">
+                        <span class="feature-tag">Google Maps API</span>
+                        <span class="feature-tag">Autocomplete</span>
+                        <span class="feature-tag">Geocoding</span>
+                    </div>
+                    <a href="../components/AddressAutocomplete-demo.html" class="demo-button">📍 Ver Demo</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Utilidades y Hooks -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">🔧</div>
+                <h2 class="section-title">Utilidades y Hooks</h2>
+            </div>
+            <div class="demo-grid">
+                <div class="demo-card" onclick="window.location.href='../utils/searchHistory-demo.html'">
+                    <div class="demo-card-header">
+                        <div>
+                            <div class="demo-title">Search History</div>
+                            <div class="demo-lines">88 → 95 líneas</div>
+                        </div>
+                    </div>
+                    <p class="demo-description">
+                        Gestión del historial de búsquedas usando localStorage.
+                    </p>
+                    <div class="demo-features">
+                        <span class="feature-tag">LocalStorage</span>
+                        <span class="feature-tag">CRUD</span>
+                        <span class="feature-tag">Persistencia</span>
+                    </div>
+                    <a href="../utils/searchHistory-demo.html" class="demo-button">📚 Ver Demo</a>
+                </div>
+
+                <div class="demo-card" onclick="window.location.href='../hooks/useWebSocket-demo.html'">
+                    <div class="demo-card-header">
+                        <div>
+                            <div class="demo-title">WebSocket Hook</div>
+                            <div class="demo-lines">80 → 100 líneas</div>
+                        </div>
+                    </div>
+                    <p class="demo-description">
+                        Conexión WebSocket para chat en tiempo real con Socket.io.
+                    </p>
+                    <div class="demo-features">
+                        <span class="feature-tag">Socket.io</span>
+                        <span class="feature-tag">Real-time</span>
+                        <span class="feature-tag">Event handling</span>
+                    </div>
+                    <a href="../hooks/useWebSocket-demo.html" class="demo-button">🔌 Ver Demo</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Documentación -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">📚</div>
+                <h2 class="section-title">Documentación</h2>
+            </div>
+            <div style="text-align: center;">
+                <p style="color: #666; margin-bottom: 16px;">
+                    Consulta el archivo CONVERSIONES_VANILLA.md para más detalles técnicos
+                </p>
+                <a href="CONVERSIONES_VANILLA.md" class="demo-button" style="max-width: 300px; margin: 0 auto;">
+                    📄 Ver Documentación Completa
+                </a>
+            </div>
+        </div>
+
+        <footer>
+            <p>
+                <strong>UniGO - Carsharing Universitario</strong><br>
+                Proyecto completo disponible en React/TypeScript + Next.js y HTML/CSS/JavaScript vanilla
+            </p>
+            <p style="margin-top: 16px; color: #999;">
+                © 2024 - Desarrollado como demostración de habilidades full-stack
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Completion Validator - Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .profiles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .profile-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .profile-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .profile-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .profile-field {
+            margin-bottom: 8px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .profile-field .label {
+            font-weight: 600;
+            color: #666;
+            min-width: 100px;
+        }
+
+        .profile-field .value {
+            color: #333;
+        }
+
+        .profile-field.missing .value {
+            color: #dc3545;
+            font-style: italic;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .status-badge.complete {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.incomplete {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .missing-fields {
+            margin-top: 10px;
+            padding: 10px;
+            background: #fff3cd;
+            border-radius: 8px;
+            font-size: 12px;
+        }
+
+        .missing-fields strong {
+            color: #856404;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✅ Profile Completion Validator</h1>
+        <p class="subtitle">Validador de perfiles de usuario completos</p>
+
+        <div class="profiles-grid" id="profilesGrid"></div>
+
+        <button onclick="validateAll()">🔄 Re-validar Todos</button>
+    </div>
+
+    <script src="isProfileComplete-vanilla.js"></script>
+    <script>
+        // Perfiles de prueba
+        const testProfiles = [
+            {
+                name: 'Perfil Completo',
+                user: {
+                    full_name: 'Juan Pérez García',
+                    university: 'Universidad Complutense de Madrid',
+                    degree: 'Ingeniería Informática',
+                    course: 3,
+                    home_address: {
+                        formatted_address: 'Calle Mayor 1, Madrid',
+                        place_id: 'ChIJ...',
+                        lat: 40.4168,
+                        lng: -3.7038
+                    }
+                }
+            },
+            {
+                name: 'Sin Nombre',
+                user: {
+                    full_name: '',
+                    university: 'Universidad Politécnica',
+                    degree: 'Arquitectura',
+                    course: 2,
+                    home_address: {
+                        formatted_address: 'Av. Libertad 10',
+                        place_id: 'ChIJ...',
+                        lat: 40.4168,
+                        lng: -3.7038
+                    }
+                }
+            },
+            {
+                name: 'Sin Dirección',
+                user: {
+                    full_name: 'María López',
+                    university: 'Universidad de Barcelona',
+                    degree: 'Medicina',
+                    course: 4,
+                    home_address: null
+                }
+            },
+            {
+                name: 'Curso Inválido',
+                user: {
+                    full_name: 'Carlos Ruiz',
+                    university: 'Universidad de Valencia',
+                    degree: 'Derecho',
+                    course: 0,
+                    home_address: {
+                        formatted_address: 'Plaza España 5',
+                        place_id: 'ChIJ...',
+                        lat: 39.4699,
+                        lng: -0.3763
+                    }
+                }
+            }
+        ];
+
+        function renderProfiles() {
+            const grid = document.getElementById('profilesGrid');
+            grid.innerHTML = '';
+
+            testProfiles.forEach(profile => {
+                const isComplete = isProfileComplete(profile.user);
+                const missing = getMissingFields(profile.user);
+
+                const card = document.createElement('div');
+                card.className = 'profile-card';
+                
+                let fieldsHTML = '';
+                const fields = [
+                    { label: 'Nombre', value: profile.user?.full_name || '(vacío)', missing: !profile.user?.full_name },
+                    { label: 'Universidad', value: profile.user?.university || '(vacío)', missing: !profile.user?.university },
+                    { label: 'Carrera', value: profile.user?.degree || '(vacío)', missing: !profile.user?.degree },
+                    { label: 'Curso', value: profile.user?.course || '(inválido)', missing: !profile.user?.course || profile.user.course <= 0 },
+                    { label: 'Dirección', value: profile.user?.home_address?.formatted_address || '(vacío)', missing: !profile.user?.home_address }
+                ];
+
+                fields.forEach(field => {
+                    fieldsHTML += `
+                        <div class="profile-field ${field.missing ? 'missing' : ''}">
+                            <span class="label">${field.label}:</span>
+                            <span class="value">${field.value}</span>
+                        </div>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <h3>${profile.name}</h3>
+                    ${fieldsHTML}
+                    <div class="status-badge ${isComplete ? 'complete' : 'incomplete'}">
+                        ${isComplete ? '✅ Completo' : '❌ Incompleto'}
+                    </div>
+                    ${!isComplete ? `
+                        <div class="missing-fields">
+                            <strong>Campos faltantes:</strong> ${missing.join(', ')}
+                        </div>
+                    ` : ''}
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        function validateAll() {
+            renderProfiles();
+        }
+
+        // Renderizar al cargar
+        renderProfiles();
+    </script>
+</body>
+</html>

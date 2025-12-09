@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toast Notifications - Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .demo-section {
+            background: #f5f5f5;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .demo-section h2 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        button {
+            padding: 16px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-error {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-custom {
+            background: #6f42c1;
+            color: white;
+        }
+
+        .custom-message-section {
+            margin-top: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        input[type="number"] {
+            width: 120px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        select {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .examples-list {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .example-item {
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            border-left: 4px solid #667eea;
+        }
+
+        .toast-preview {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 2px dashed #e0e0e0;
+        }
+
+        .toast-preview h3 {
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔔 Toast Notifications</h1>
+        <p class="subtitle">Sistema de notificaciones toast en vanilla JavaScript</p>
+
+        <div class="demo-section">
+            <h2>📋 Tipos de Toast</h2>
+            <div class="button-grid">
+                <button class="btn-warning" onclick="showWarning()">
+                    <span>⚠️</span>
+                    <span>Warning</span>
+                </button>
+                <button class="btn-success" onclick="showSuccess()">
+                    <span>✅</span>
+                    <span>Success</span>
+                </button>
+                <button class="btn-error" onclick="showError()">
+                    <span>❌</span>
+                    <span>Error</span>
+                </button>
+                <button class="btn-info" onclick="showInfo()">
+                    <span>ℹ️</span>
+                    <span>Info</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>✏️ Mensaje Personalizado</h2>
+            <div class="input-group">
+                <input type="text" id="customMessage" placeholder="Escribe tu mensaje aquí..." value="Este es un mensaje personalizado">
+                <select id="customType">
+                    <option value="warning">⚠️ Warning</option>
+                    <option value="success">✅ Success</option>
+                    <option value="error">❌ Error</option>
+                    <option value="info">ℹ️ Info</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <input type="number" id="customDuration" placeholder="Duración (ms)" value="3000" min="0" max="10000" step="500">
+                <button class="btn-custom" onclick="showCustom()" style="flex: 1;">
+                    <span>🚀</span>
+                    <span>Mostrar Toast Personalizado</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>💻 Ejemplos de Código</h2>
+            <div class="examples-list">
+                <div class="example-item">
+                    toast.warning('¡Atención! Completa tu perfil')
+                </div>
+                <div class="example-item">
+                    toast.success('¡Viaje publicado correctamente!')
+                </div>
+                <div class="example-item">
+                    toast.error('Error al procesar el pago')
+                </div>
+                <div class="example-item">
+                    toast.info('Nueva versión disponible')
+                </div>
+                <div class="example-item">
+                    toast.show('Mensaje', { type: 'warning', duration: 5000 })
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>🎯 Casos de Uso</h2>
+            <div class="button-grid">
+                <button class="btn-info" onclick="showFormError()">
+                    Error en Formulario
+                </button>
+                <button class="btn-success" onclick="showSaveSuccess()">
+                    Guardado Exitoso
+                </button>
+                <button class="btn-warning" onclick="showSessionWarning()">
+                    Sesión por Expirar
+                </button>
+                <button class="btn-error" onclick="showNetworkError()">
+                    Error de Red
+                </button>
+                <button class="btn-info" onclick="showUpdateInfo()">
+                    Actualización Disponible
+                </button>
+                <button class="btn-success" onclick="showUploadSuccess()">
+                    Subida Completa
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="useToast-vanilla.js"></script>
+    <script>
+        // Funciones de demostración
+        function showWarning() {
+            toast.warning('¡Atención! Completa tu perfil antes de publicar un viaje');
+        }
+
+        function showSuccess() {
+            toast.success('¡Viaje publicado correctamente!');
+        }
+
+        function showError() {
+            toast.error('Error al procesar el pago. Intenta nuevamente.');
+        }
+
+        function showInfo() {
+            toast.info('Tienes 3 mensajes sin leer');
+        }
+
+        function showCustom() {
+            const message = document.getElementById('customMessage').value;
+            const type = document.getElementById('customType').value;
+            const duration = parseInt(document.getElementById('customDuration').value);
+
+            toast.show(message, { type, duration });
+        }
+
+        // Casos de uso específicos
+        function showFormError() {
+            toast.error('Por favor, completa todos los campos obligatorios del formulario');
+        }
+
+        function showSaveSuccess() {
+            toast.success('Los cambios han sido guardados correctamente');
+        }
+
+        function showSessionWarning() {
+            toast.warning('Tu sesión expirará en 5 minutos. Guarda tu trabajo.', 5000);
+        }
+
+        function showNetworkError() {
+            toast.error('No se pudo conectar con el servidor. Verifica tu conexión a internet.', 5000);
+        }
+
+        function showUpdateInfo() {
+            toast.info('Hay una nueva versión disponible. Actualiza para obtener las últimas mejoras.');
+        }
+
+        function showUploadSuccess() {
+            toast.success('El archivo se ha subido correctamente. Ya puedes continuar.');
+        }
+
+        // Mostrar toast de bienvenida
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                toast.info('¡Bienvenido! Haz clic en cualquier botón para ver los toasts en acción');
+            }, 500);
+        });
+    </script>
+</body>
+</html>

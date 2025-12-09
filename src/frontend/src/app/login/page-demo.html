@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - UniGO (Vanilla JS)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f9fafb 0%, #e8f5e9 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-page {
+            width: 100%;
+            max-width: 450px;
+        }
+        
+        .login-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            padding: 48px 40px;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: #86cc49;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(134, 204, 73, 0.3);
+        }
+        
+        .logo-icon svg {
+            width: 28px;
+            height: 28px;
+            color: white;
+        }
+        
+        .logo-text {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #86cc49;
+        }
+        
+        .login-title {
+            font-size: 1.75rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .login-subtitle {
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        .message-box {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .message-error {
+            background: #ffebee;
+            border: 1px solid #ffcdd2;
+            color: #c62828;
+        }
+        
+        .message-success {
+            background: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            color: #2e7d32;
+        }
+        
+        .message-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .message-icon {
+            font-size: 1.25rem;
+        }
+        
+        .message-text {
+            flex: 1;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            outline: none;
+        }
+        
+        .form-input:focus {
+            border-color: #86cc49;
+            box-shadow: 0 0 0 3px rgba(134, 204, 73, 0.1);
+        }
+        
+        .form-input::placeholder {
+            color: #999;
+        }
+        
+        .submit-button {
+            width: 100%;
+            padding: 14px 24px;
+            background: #86cc49;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .submit-button:hover:not(:disabled) {
+            background: #75b83d;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(134, 204, 73, 0.4);
+        }
+        
+        .submit-button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        
+        .submit-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .submit-button.loading {
+            background: #999;
+        }
+        
+        .spinner {
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        .spinner-circle {
+            stroke-dasharray: 60;
+            stroke-dashoffset: 0;
+            animation: dash 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes dash {
+            0% {
+                stroke-dashoffset: 60;
+            }
+            50% {
+                stroke-dashoffset: 15;
+            }
+            100% {
+                stroke-dashoffset: 60;
+            }
+        }
+        
+        .form-footer {
+            margin-top: 24px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .footer-text {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .footer-link {
+            color: #86cc49;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+        
+        .footer-link:hover {
+            color: #75b83d;
+            text-decoration: underline;
+        }
+        
+        /* Comparación info box */
+        .info-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .info-title {
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .info-text {
+            font-size: 0.85rem;
+            color: #856404;
+            line-height: 1.5;
+        }
+        
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 32px 24px;
+            }
+            
+            .login-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Info box de comparación -->
+    <div style="position: fixed; top: 20px; right: 20px; max-width: 300px; z-index: 1000;">
+        <div class="info-box">
+            <div class="info-title">
+                ℹ️ Versión HTML/JS Vanilla
+            </div>
+            <div class="info-text">
+                Esta es la versión sin React del componente <code>login/page.tsx</code> (254 líneas TSX → ~200 líneas JS puro)
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor principal -->
+    <div id="loginContainer"></div>
+
+    <!-- Script -->
+    <script src="page.js"></script>
+    <script>
+        // Inicializar la página de login
+        const loginPage = new LoginPage();
+        loginPage.init('loginContainer');
+
+        // Datos de prueba para facilitar testing
+        console.log('📝 Datos de prueba (ejemplo):');
+        console.log('Email: estudiante@universidad.es');
+        console.log('Password: password123');
+        console.log('');
+        console.log('⚠️ NOTA: Para que funcione el login, el backend debe estar corriendo en http://127.0.0.1:8000');
+        console.log('Si el backend no está disponible, verás un error de conexión (comportamiento esperado).');
+        console.log('');
+        console.log('🔍 Funcionalidades implementadas:');
+        console.log('✅ Validación de formulario');
+        console.log('✅ Estados de carga (loading)');
+        console.log('✅ Manejo de errores con mensajes user-friendly');
+        console.log('✅ Almacenamiento de token en localStorage');
+        console.log('✅ Animaciones y feedback visual');
+        console.log('✅ Responsive design');
+    </script>
+</body>
+</html>
