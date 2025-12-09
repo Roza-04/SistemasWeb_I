@@ -1,29 +1,29 @@
+SHELL := /bin/bash
+
 # -------- Paths --------
-ROOT_DIR := $(CURDIR)
+ROOT_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 INFRA := $(ROOT_DIR)/src/infra
 BACKEND := $(ROOT_DIR)/src/backend
 FRONTEND := $(ROOT_DIR)/src/frontend
 
 # -------- Infra --------
 .PHONY: infra-up infra-down infra-logs
-
 infra-up:
-	docker compose -f $(INFRA)/docker-compose.yml up -d
+	cd $(ROOT_DIR) && docker compose -f $(INFRA)/docker-compose.yml up -d
 
 infra-down:
-	docker compose -f $(INFRA)/docker-compose.yml down -v
+	cd $(ROOT_DIR) && docker compose -f $(INFRA)/docker-compose.yml down -v
 
 infra-logs:
-	docker compose -f $(INFRA)/docker-compose.yml logs -f
+	cd $(ROOT_DIR) && docker compose -f $(INFRA)/docker-compose.yml logs -f
 
 # -------- Backend (Node.js) --------
-.PHONY: backend-setup backend backend-start migrate migrate-undo migrate-create lint test backend-test
-
+.PHONY: backend-setup backend backend-start migrate backend-test lint test
 backend-setup:
-	cd $(BACKEND) && npm install
+	cd $(ROOT_DIR) && cd $(BACKEND) && npm install
 
 backend:
-	cd $(BACKEND) && npm run dev
+	cd $(ROOT_DIR) && cd $(BACKEND) && npm run dev
 
 backend-start: backend-setup backend
 
@@ -34,15 +34,14 @@ migrate-undo:
 	cd $(BACKEND) && npm run migrate:undo
 
 migrate-create:
-	@echo "Nombre de la migración:"; \
-	read name; \
+	@read -p "Nombre de la migración: " name; \
 	cd $(BACKEND) && npm run migrate:create -- --name $$name
 
 lint:
-	cd $(BACKEND) && npm run lint
+	cd $(ROOT_DIR) && cd $(BACKEND) && npm run lint
 
 test:
-	cd $(BACKEND) && npm test
+	cd $(ROOT_DIR) && cd $(BACKEND) && npm test
 
 backend-test:
 	@echo "Testing backend connection..."
@@ -50,16 +49,14 @@ backend-test:
 
 # -------- Frontend --------
 .PHONY: frontend-setup frontend
-
 frontend-setup:
-	cd $(FRONTEND) && npm install
+	cd $(ROOT_DIR) && cd $(FRONTEND) && npm install
 
 frontend:
-	cd $(FRONTEND) && npm run dev
+	cd $(ROOT_DIR) && cd $(FRONTEND) && npm run dev
 
 # -------- Convenience --------
 .PHONY: urls dev start-all
-
 urls:
 	@echo "Backend (Express):  http://127.0.0.1:8000"
 	@echo "  - Health:         http://127.0.0.1:8000/health"
@@ -70,4 +67,5 @@ urls:
 	@echo "Grafana:            http://127.0.0.1:3000"
 
 dev: infra-up backend-start frontend
+
 start-all: infra-up backend-start frontend
