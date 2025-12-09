@@ -84,7 +84,7 @@ sostenibilidad y la colaboración dentro de la comunidad universitaria.
 
 ### 🔧 Variables de Entorno
 
-Ejecutar: copy .env.backup .env
+Ejecutar en src/backend: copy .env.backup .env
 
 En src/frontend crear .env.local y añadir: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=AIzaSyCVIhHblM1z5tC60ZB6C7FsKMNOdkaVd9k
 
