@@ -134,6 +134,149 @@ router.get('/', async (req, res, next) => {
   }
 });
 
+// GET /api/rides/registro - Get user's ride history (authenticated)
+router.get('/registro', authenticate, async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    // Get rides where user is driver and completed or cancelled
+    const driverRides = await Ride.findAll({
+      where: {
+        driver_id: userId,
+        [Op.or]: [
+          { is_completed: true },
+          { is_cancelled: true }
+        ]
+      },
+      include: [
+        {
+          model: User,
+          as: 'driver',
+          attributes: ['id', 'full_name']
+        },
+        {
+          model: Booking,
+          as: 'bookings',
+          where: { status: BookingStatus.CONFIRMED },
+          required: false,
+          include: [
+            {
+              model: User,
+              as: 'passenger',
+              attributes: ['id', 'full_name', 'avatar_url']
+            }
+          ]
+        }
+      ],
+      order: [['departure_time', 'DESC']]
+    });
+
+    // Get rides where user is passenger and completed or cancelled
+    const passengerRides = await Ride.findAll({
+      where: {
+        [Op.or]: [
+          { is_completed: true },
+          { is_cancelled: true }
+        ]
+      },
+      include: [
+        {
+          model: User,
+          as: 'driver',
+          attributes: ['id', 'full_name']
+        },
+        {
+          model: Booking,
+          as: 'bookings',
+          where: {
+            passenger_id: userId,
+            status: { [Op.in]: [BookingStatus.CONFIRMED, BookingStatus.CANCELLED] }
+          },
+          required: true,
+          include: [
+            {
+              model: User,
+              as: 'passenger',
+              attributes: ['id', 'full_name', 'avatar_url']
+            }
+          ]
+        }
+      ],
+      order: [['departure_time', 'DESC']]
+    });
+
+    // Transform driver rides
+    const transformedDriverRides = driverRides.map(ride => {
+      const rideData = ride.toJSON();
+      const passengers = rideData.bookings?.map(booking => ({
+        passenger_id: booking.passenger.id,
+        passenger_name: booking.passenger.full_name,
+        passenger_avatar: booking.passenger.avatar_url,
+        seats: booking.seats
+      })) || [];
+
+      return {
+        id: rideData.id,
+        origin: rideData.origin,
+        destination: rideData.destination,
+        departure_time: rideData.departure_time,
+        price_per_seat: rideData.price_per_seat,
+        status: rideData.is_cancelled ? 'cancelled' : 'completed',
+        role: 'conductor',
+        driver_name: rideData.driver.full_name,
+        driver_id: rideData.driver_id,
+        passengers: passengers,
+        additional_details: rideData.description || '',
+        departure_lat: rideData.origin_latitude,
+        departure_lng: rideData.origin_longitude,
+        destination_lat: rideData.destination_latitude,
+        destination_lng: rideData.destination_longitude,
+        vehicle_brand: rideData.vehicle_brand,
+        vehicle_model: rideData.vehicle_model,
+        vehicle_color: rideData.vehicle_color,
+        estimated_duration_minutes: rideData.estimated_duration,
+        has_pending_ratings: passengers.length > 0 // Simplified, could check actual ratings
+      };
+    });
+
+    // Transform passenger rides
+    const transformedPassengerRides = passengerRides.map(ride => {
+      const rideData = ride.toJSON();
+      const booking = rideData.bookings[0]; // Since required, should have at least one
+
+      return {
+        id: rideData.id,
+        origin: rideData.origin,
+        destination: rideData.destination,
+        departure_time: rideData.departure_time,
+        price_per_seat: booking.price_per_seat || rideData.price_per_seat,
+        status: rideData.is_cancelled ? 'cancelled' : 'completed',
+        role: 'pasajero',
+        driver_name: rideData.driver.full_name,
+        driver_id: rideData.driver_id,
+        additional_details: rideData.description || '',
+        departure_lat: rideData.origin_latitude,
+        departure_lng: rideData.origin_longitude,
+        destination_lat: rideData.destination_latitude,
+        destination_lng: rideData.destination_longitude,
+        vehicle_brand: rideData.vehicle_brand,
+        vehicle_model: rideData.vehicle_model,
+        vehicle_color: rideData.vehicle_color,
+        estimated_duration_minutes: rideData.estimated_duration
+      };
+    });
+
+    // Combine and sort by departure time descending
+    const allRides = [...transformedDriverRides, ...transformedPassengerRides]
+      .sort((a, b) => new Date(b.departure_time) - new Date(a.departure_time));
+
+    logger.info(`📚 Retrieved ${allRides.length} completed rides for user ${userId}`);
+    res.json(allRides);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // POST /api/rides - Create new ride (authenticated)
 router.post('/', authenticate, validate(createRideSchema), async (req, res, next) => {
   try {

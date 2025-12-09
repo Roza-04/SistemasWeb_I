@@ -9,7 +9,7 @@ import PassengerSelectionModal, { Passenger } from "@/components/PassengerSelect
 import ActivityMapPreview from "@/components/ActivityMapPreview";
 import TripGroupChat from "@/components/TripGroupChat";
 import PassengersSection from "@/components/PassengersSection";
-import { getToken, Ride, getMyRides, getMyBookings, cancelRide, cancelBooking, getRideHistory, RideHistoryItem, createRating, getCurrentUserId, deleteRide, getPendingBookingsForDriver, acceptBooking, rejectBooking, PendingBooking } from "@/lib/api";
+import { getToken, Ride, getMyRides, getMyBookings, cancelRide, cancelBooking, getRideHistory, RideHistoryItem, createRating, getCurrentUserId, deleteRide, getPendingBookingsForDriver, acceptBooking, rejectBooking, PendingBooking, completeRide } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -158,10 +158,10 @@ export default function MyRidesPage() {
     try {
       const bookings = await getMyBookings();
       // Filter out rejected and cancelled bookings from "Mis reservas como pasajero"
-      const filteredBookings = bookings.filter((ride) => 
-        ride.booking_status !== "REJECTED" && 
-        ride.booking_status !== "CANCELLED"
-      );
+      const filteredBookings = bookings.filter((ride) => {
+        const status = (ride.booking_status || '').toLowerCase();
+        return status !== "rejected" && status !== "cancelled" && status !== "completed";
+      });
       setBookings(filteredBookings);
     } catch (error) {
       console.error("Error fetching bookings:", error);
@@ -748,6 +748,29 @@ export default function MyRidesPage() {
                               }
                               return null;
                             })()}
+                              {/* Terminar viaje button for driver, only if not completed */}
+                              {currentUserId === ride.driver_id && ride.is_active && (
+                                <button
+                                  onClick={async () => {
+                                    try {
+                                      await completeRide(ride.id);
+                                      alert('¡Viaje marcado como completado!');
+                                      await fetchMyRides();
+                                      await fetchRideHistory();
+                                      // Optionally, redirect to registro/history tab for rating
+                                      setActiveTab('history');
+                                    } catch (err) {
+                                      alert('Error al marcar el viaje como completado');
+                                    }
+                                  }}
+                                  className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors text-sm flex items-center space-x-2"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                                  </svg>
+                                  <span>Terminar viaje</span>
+                                </button>
+                              )}
                             <button
                               onClick={() => handleCancelRide(ride.id)}
                               className="px-4 py-2 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors text-sm"
@@ -878,7 +901,7 @@ export default function MyRidesPage() {
                         {/* Trip Details */}
                         <div className="mt-4 grid grid-cols-1 gap-4 text-sm text-gray-600 md:grid-cols-3">
                           <div>
-                            <span className="font-medium text-gray-900">Asientos reservados:</span> {ride.booking_seats || 1}
+                            <span className="font-medium text-gray-900">Asientos reservados:</span> {ride.seats_booked || 1}
                           </div>
                           <div>
                             <span className="font-medium text-gray-900">Vehículo:</span>{" "}
@@ -1142,13 +1165,20 @@ export default function MyRidesPage() {
 
                         {/* Action buttons */}
                         <div className="mt-6 flex justify-end gap-3">
-                          {/* Show rating button for drivers if there are pending passengers, or for passengers if can_rate */}
-                          {((ride.role === "conductor" && ride.has_pending_ratings) || (ride.role === "pasajero" && ride.can_rate && ride.booking_id)) && (
+                          {/* Valorar button for completed trips, always visible for both roles */}
+                          {ride.status === "completed" && (
                             <button
                               onClick={() => handleRateClick(ride)}
-                              className="px-4 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors text-sm"
+                              className={`px-4 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors text-sm flex items-center space-x-2 ${(ride.has_rated) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                              disabled={!!ride.has_rated}
                             >
-                              Valorar
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 20h9" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m0 0l-4-4m4 4l4-4" />
+                              </svg>
+                              <span>
+                                {ride.role === "conductor" ? "Valorar pasajero" : "Valorar conductor"}
+                              </span>
                             </button>
                           )}
                           {/* Delete button - only for own rides as conductor */}

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import DesktopLayout from "@/components/DesktopLayout";
 import PassengerSelectionModal, { Passenger } from "@/components/PassengerSelectionModal";
 import RatingModal from "@/components/RatingModal";
+import RouteMap from "@/components/RouteMap";
 import { getToken, getRideHistory, RideHistoryItem, createRatingByRide, hasRated, getCurrentUserId } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -159,28 +160,53 @@ export default function RegistroPage() {
 
   const handleRateClick = (ride: RideHistoryItem) => {
     const currentUserId = getCurrentUserId();
+    console.log('handleRateClick called for ride', ride.id, 'ratingButtonsState:', ratingButtonsState[ride.id]);
     if (!currentUserId) {
       console.error("No current user ID");
       return;
     }
-    
-    // Get other user ID from button state
+
+    // Determine other user id, prefer button state but fallback to ride data
+    let otherUserId: number | null = null;
     const buttonState = ratingButtonsState[ride.id];
-    if (!buttonState || !buttonState.otherUserId) {
-      console.error("No otherUserId found in button state");
+    if (buttonState && buttonState.otherUserId) {
+      otherUserId = buttonState.otherUserId;
+    }
+
+    const isDriver = ride.driver_id === currentUserId;
+
+    // If driver and multiple passengers, open selection modal
+    if (isDriver && ride.passengers && ride.passengers.length > 1) {
+      console.log('Opening passenger selection modal for ride', ride.id);
+      setPassengerSelectionModal({ isOpen: true, rideId: ride.id, passengers: ride.passengers });
       return;
     }
-    
-    const otherUserId = buttonState.otherUserId;
-    const isDriver = ride.driver_id === currentUserId;
-    
+
+    // Fallbacks: if no otherUserId, try to derive
+    if (!otherUserId) {
+      if (isDriver) {
+        if (ride.passengers && ride.passengers.length > 0) {
+          otherUserId = ride.passengers[0].passenger_id;
+        } else if (ride.rated_user_id) {
+          otherUserId = ride.rated_user_id;
+        }
+      } else {
+        otherUserId = ride.driver_id;
+      }
+    }
+
+    if (!otherUserId) {
+      console.error('Unable to determine otherUserId for rating on ride', ride.id);
+      return;
+    }
+
     let ratedUserName = "";
     let ratedUserAvatar: string | null = null;
-    
+
     if (isDriver) {
       // Driver rating passenger
-      if (ride.passengers && ride.passengers.length > 0) {
-        const passenger = ride.passengers.find(p => p.passenger_id === otherUserId) || ride.passengers[0];
+      const passenger = ride.passengers && ride.passengers.length > 0 ? (ride.passengers.find(p => p.passenger_id === otherUserId) || ride.passengers[0]) : null;
+      if (passenger) {
         ratedUserName = passenger.passenger_name;
         ratedUserAvatar = passenger.passenger_avatar || null;
       } else if (ride.rated_user_name) {
@@ -194,7 +220,8 @@ export default function RegistroPage() {
       ratedUserName = ride.driver_name || "Conductor";
       ratedUserAvatar = null;
     }
-    
+
+    console.log('Opening rating modal for', ratedUserName, 'id', otherUserId, 'ride', ride.id);
     setRatingModal({
       isOpen: true,
       rideId: ride.id,
@@ -245,6 +272,7 @@ export default function RegistroPage() {
   };
 
   const handleRatingSubmit = async (score: number, comment?: string) => {
+    console.log('handleRatingSubmit called', { score, comment, ratingModal });
     const currentUserId = getCurrentUserId();
     if (!ratingModal.rideId || !ratingModal.ratedId || !currentUserId) {
       throw new Error("No se pudo identificar el viaje o el usuario");
@@ -422,33 +450,30 @@ export default function RegistroPage() {
                         )}
                       </div>
                     </div>
-                    
-                    {/* Route Information */}
-                    <div className="flex items-start space-x-6 mb-4 pb-4 border-b border-gray-200">
-                      <div className="flex items-center space-x-3">
-                        <div className="text-3xl font-bold text-gray-800">{ride.departure_time}</div>
-                        <div>
-                          <div className="text-xl font-bold text-gray-900">{ride.departure_city}</div>
-                          <div className="text-sm text-gray-500">{formatDate(ride.departure_date)}</div>
-                        </div>
-                      </div>
-                      
-                      <svg className="w-8 h-8 text-orange-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                      </svg>
-                      
-                      <div className="flex-1 flex items-center space-x-3">
-                        <div>
-                          <div className="text-xl font-bold text-gray-900">{ride.destination_city}</div>
-                        </div>
-                        {ride.arrival_time && (
+                    {ride.arrival_time && (
                           <div className="text-3xl font-bold text-gray-800">{ride.arrival_time}</div>
                         )}
                       </div>
                     </div>
                     
                     {/* Details Grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm mb-4">
+                      <div className="bg-gray-50 rounded-lg p-3">
+                        <div className="text-xs text-gray-500 mb-1">Fecha y hora</div>
+                        <div className="font-semibold text-gray-900">
+                          {ride.departure_time ? (() => {
+                            const date = new Date(ride.departure_time);
+                            const formatted = date.toLocaleString('es-ES', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            });
+                            return formatted === 'Invalid Date' ? ride.departure_time : formatted;
+                          })() : 'Fecha no disponible'}
+                        </div>
+                      </div>
                       {ride.role === "pasajero" && (
                         <div className="bg-gray-50 rounded-lg p-3">
                           <div className="text-xs text-gray-500 mb-1">Conductor</div>
@@ -462,9 +487,7 @@ export default function RegistroPage() {
                       <div className="bg-gray-50 rounded-lg p-3">
                         <div className="text-xs text-gray-500 mb-1">Vehículo</div>
                         <div className="font-semibold text-gray-900">
-                          {ride.vehicle_brand || ride.vehicle_color 
-                            ? [ride.vehicle_brand, ride.vehicle_color].filter(Boolean).join(' ')
-                            : 'N/A'}
+                          {[ride.vehicle_brand, ride.vehicle_model, ride.vehicle_color].filter(Boolean).join(' ') || 'N/A'}
                         </div>
                       </div>
                       {ride.estimated_duration_minutes && (
@@ -485,11 +508,50 @@ export default function RegistroPage() {
                       </div>
                     )}
                     
-                    {/* Precio Total */}
-                    <div className="mt-4 pt-4 border-t border-gray-200">
-                      <div className="flex justify-between items-center">
+                    {/* Map */}
+                    <div className="mt-4">
+                      <RouteMap
+                        origin={ride.origin}
+                        destination={ride.destination}
+                        originLat={ride.departure_lat}
+                        originLng={ride.departure_lng}
+                        destinationLat={ride.destination_lat}
+                        destinationLng={ride.destination_lng}
+                        className="w-full h-64 rounded-lg border border-gray-200"
+                      />
+                    </div>
+                    
+                    {/* Precio Total y Acciones */}
+                    <div className="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
+                      <div>
                         <span className="text-sm font-medium text-gray-700">Precio total:</span>
-                        <span className="text-xl font-bold text-gray-900">{ride.price_per_seat.toFixed(2)} €</span>
+                        <span className="text-xl font-bold text-gray-900 ml-2">{ride.price_per_seat.toFixed(2)} €</span>
+                      </div>
+                      <div className="flex gap-3">
+                        {ride.status === "completed" && ratingButtonsState[ride.id]?.show && (
+                          <button
+                            onClick={() => handleRateClick(ride)}
+                            className={`px-4 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors text-sm flex items-center space-x-2`}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 20h9" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m0 0l-4-4m4 4l4-4" />
+                            </svg>
+                            <span>
+                              {ride.role === "conductor" ? "Valorar pasajero" : "Valorar conductor"}
+                            </span>
+                          </button>
+                        )}
+                        {/* Eliminar button (existing) */}
+                        <button
+                          onClick={() => handleDeleteRide(ride.id)}
+                          className="px-4 py-2 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors text-sm flex items-center space-x-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          <span>Eliminar</span>
+                        </button>
                       </div>
                     </div>
                   </div>

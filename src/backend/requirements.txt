@@ -1,0 +1,10 @@
+# UniGO Backend - Node.js
+# Este archivo es solo para dependencias Python (ejemplo: scripts de migración, integración, etc)
+# Si tu backend es solo Node.js, usa package.json y npm install
+
+# Ejemplo de dependencias Python (elimina si no usas Python en backend)
+psycopg2>=2.9.9
+alembic>=1.13.1
+requests>=2.31.0
+
+# Si usas solo Node.js, este archivo puede estar vacío o no ser necesario
