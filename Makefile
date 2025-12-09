@@ -25,10 +25,17 @@ backend-setup:
 backend:
 	cd $(ROOT_DIR) && cd $(BACKEND) && npm run dev
 
-backend-start: backend-setup migrate backend
+backend-start: backend-setup backend
 
 migrate:
-	cd $(ROOT_DIR) && cd $(BACKEND) && npm run migrate
+	cd $(BACKEND) && npm run migrate
+
+migrate-undo:
+	cd $(BACKEND) && npm run migrate:undo
+
+migrate-create:
+	@read -p "Nombre de la migración: " name; \
+	cd $(BACKEND) && npm run migrate:create -- --name $$name
 
 lint:
 	cd $(ROOT_DIR) && cd $(BACKEND) && npm run lint

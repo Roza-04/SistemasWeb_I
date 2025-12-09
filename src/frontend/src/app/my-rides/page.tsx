@@ -902,7 +902,7 @@ export default function MyRidesPage() {
 
                         <div className="mt-6 flex justify-end gap-3">
                           {/* Chat Button - Show only if booking is ACCEPTED */}
-                          {ride.booking_status === 'ACCEPTED' && (
+                          {ride.booking_status === 'confirmed' && (
                             <button
                               onClick={() => setChatModal({ isOpen: true, tripId: ride.id })}
                               className="px-4 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors text-sm flex items-center space-x-2"

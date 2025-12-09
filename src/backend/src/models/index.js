@@ -1,7 +1,7 @@
 import User from './User.js';
 import EmailCode from './EmailCode.js';
 import Ride from './Ride.js';
-import Booking from './Booking.js';
+import Booking, { BookingStatus } from './Booking.js';
 import Payment from './Payment.js';
 import Message from './Message.js';
 import Rating from './Rating.js';
@@ -42,8 +42,8 @@ Ride.hasMany(Rating, { foreignKey: 'ride_id', as: 'ratings' });
 Rating.belongsTo(Ride, { foreignKey: 'ride_id', as: 'ride' });
 
 // TripGroupMessage associations
-Ride.hasMany(TripGroupMessage, { foreignKey: 'trip_id', as: 'groupMessages' });
-TripGroupMessage.belongsTo(Ride, { foreignKey: 'trip_id', as: 'trip' });
+Ride.hasMany(TripGroupMessage, { foreignKey: 'ride_id', as: 'groupMessages' });
+TripGroupMessage.belongsTo(Ride, { foreignKey: 'ride_id', as: 'trip' });
 
 User.hasMany(TripGroupMessage, { foreignKey: 'sender_id', as: 'groupMessages' });
 TripGroupMessage.belongsTo(User, { foreignKey: 'sender_id', as: 'sender' });
@@ -53,6 +53,7 @@ export {
   EmailCode,
   Ride,
   Booking,
+  BookingStatus,
   Payment,
   Message,
   Rating,

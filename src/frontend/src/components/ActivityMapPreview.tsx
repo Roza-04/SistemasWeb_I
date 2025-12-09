@@ -141,7 +141,8 @@ export default function ActivityMapPreview({
     };
 
     fetchRouteInfo();
-  }, [currentOrigin, currentDestination, onRouteInfoLoaded]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentOrigin, currentDestination]);
 
   // Calculate route using DirectionsService
   useEffect(() => {

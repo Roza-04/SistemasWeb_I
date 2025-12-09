@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniGO - Índice de Demos Vanilla JS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 36px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .category {
+            margin-bottom: 40px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .category-icon {
+            font-size: 32px;
+        }
+
+        .category-title {
+            font-size: 24px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .demos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .demo-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .demo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            border-color: #667eea;
+        }
+
+        .demo-card h3 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .demo-card p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .demo-link {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .demo-link:hover {
+            background: #5568d3;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            color: white;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 UniGO - Demos Vanilla JS</h1>
+        <p class="subtitle">Conversiones de React/TypeScript a HTML/CSS/JavaScript puro</p>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number">11</div>
+                <div class="stat-label">Demos Creadas</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">3</div>
+                <div class="stat-label">Categorías</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Vanilla JS</div>
+            </div>
+        </div>
+
+        <!-- UTILS -->
+        <div class="category">
+            <div class="category-header">
+                <span class="category-icon">🛠️</span>
+                <h2 class="category-title">Utilidades (utils/)</h2>
+            </div>
+            <div class="demos-grid">
+                <div class="demo-card" onclick="openDemo('utils/googleMapsLoader-demo.html')">
+                    <h3>🗺️ Google Maps Loader</h3>
+                    <p>Carga dinámica de Google Maps API con prevención de duplicados. Incluye callback system y manejo de errores.</p>
+                    <a href="utils/googleMapsLoader-demo.html" class="demo-link">Ver Demo →</a>
+                </div>
+
+                <div class="demo-card" onclick="openDemo('utils/isProfileComplete-demo.html')">
+                    <h3>✅ Profile Validator</h3>
+                    <p>Validación de perfiles completos con verificación de campos obligatorios y sistema de badges.</p>
+                    <a href="utils/isProfileComplete-demo.html" class="demo-link">Ver Demo →</a>
+                </div>
+
+                <div class="demo-card" onclick="openDemo('utils/polylineDecoder-demo.html')">
+                    <h3>📍 Polyline Decoder</h3>
+                    <p>Decodificador de polylines de Google Maps. Convierte strings codificados en coordenadas legibles.</p>
+                    <a href="utils/polylineDecoder-demo.html" class="demo-link">Ver Demo →</a>
+                </div>
+
+                <div class="demo-card" onclick="openDemo('utils/checkProfileCompletion-demo.html')">
+                    <h3>📊 Profile Completion Checker</h3>
+                    <p>Sistema de verificación con porcentajes de completitud y análisis detallado de campos.</p>
+                    <a href="utils/checkProfileCompletion-demo.html" class="demo-link">Ver Demo →</a>
+                </div>
+
+                <div class="demo-card" onclick="openDemo('utils/searchHistory-demo.html')">
+                    <h3>🕒 Search History Manager</h3>
+                    <p>Gestión de historial de búsquedas con LocalStorage. Incluye límite de elementos y persistencia.</p>
+                    <a href="utils/searchHistory-demo.html" class="demo-link">Ver Demo →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- HOOKS -->
+        <div class="category">
+            <div class="category-header">
+                <span class="category-icon">🎣</span>
+                <h2 class="category-title">Custom Hooks (hooks/)</h2>
+            </div>
+            <div class="demos-grid">
+                <div class="demo-card" onclick="openDemo('hooks/useRealtimeNotifications-demo.html')">
+                    <h3>🔔 Realtime Notifications</h3>
+                    <p>Sistema de notificaciones en tiempo real con WebSocket. Gestión de mensajes no leídos y banners.</p>
+                    <a href="hooks/useRealtimeNotifications-demo.html" class="demo-link">Ver Demo →</a>
+                </div>
+
+                <div class="demo-card" onclick="openDemo('hooks/usePendingBookings-demo.html')">
+                    <h3>📋 Pending Bookings Manager</h3>
+                    <p>Polling system para reservas pendientes. Actualización automática cada 5 segundos con estadísticas.</p>
+                    <a href="hooks/usePendingBookings-demo.html" class="demo-link">Ver Demo →</a>
+                </div>
+
+                <div class="demo-card" onclick="openDemo('hooks/useToast-demo.html')">
+                    <h3>🔔 Toast Notifications</h3>
+                    <p>Sistema de notificaciones toast con múltiples tipos (warning, success, error, info) y animaciones.</p>
+                    <a href="hooks/useToast-demo.html" class="demo-link">Ver Demo →</a>
+                </div>
+
+                <div class="demo-card" onclick="openDemo('hooks/useWebSocket-demo.html')">
+                    <h3>🔌 WebSocket Manager</h3>
+                    <p>Gestión de conexiones WebSocket con reconexión automática y manejo de eventos.</p>
+                    <a href="hooks/useWebSocket-demo.html" class="demo-link">Ver Demo →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- COMPONENTS -->
+        <div class="category">
+            <div class="category-header">
+                <span class="category-icon">🧩</span>
+                <h2 class="category-title">Componentes (components/)</h2>
+            </div>
+            <div class="demos-grid">
+                <div class="demo-card" onclick="openDemo('components/AddressAutocomplete-demo.html')">
+                    <h3>📍 Address Autocomplete</h3>
+                    <p>Autocompletado de direcciones con Google Places API. Búsqueda inteligente y selección de ubicaciones.</p>
+                    <a href="components/AddressAutocomplete-demo.html" class="demo-link">Ver Demo →</a>
+                </div>
+
+                <div class="demo-card" onclick="openDemo('components/RideCard-demo.html')">
+                    <h3>🚗 Ride Card</h3>
+                    <p>Tarjeta de viaje con información completa: ruta, conductor, precio, plazas disponibles y valoraciones.</p>
+                    <a href="components/RideCard-demo.html" class="demo-link">Ver Demo →</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>UniGO</strong> - Plataforma de compartición de viajes universitarios</p>
+            <p>Todas las demos son independientes y funcionan sin frameworks</p>
+        </div>
+    </div>
+
+    <script>
+        function openDemo(path) {
+            // Prevent double-click from both card and link
+            event.preventDefault();
+            window.open(path, '_blank');
+        }
+    </script>
+</body>
+</html>

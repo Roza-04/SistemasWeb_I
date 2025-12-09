@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Ride, getCurrentUserId, getMyBookings, RouteInfo } from "@/lib/api";
 import ActivityMapPreview from "@/components/ActivityMapPreview";
 import TripGroupChat from "@/components/TripGroupChat";
@@ -30,6 +30,10 @@ export default function RideDetail({ ride, onBack, onContact, bookingSuccess = f
   const [mounted, setMounted] = useState(false);
   const [showGroupChat, setShowGroupChat] = useState(false);
   const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
+
+  const handleRouteInfoLoaded = useCallback((info: RouteInfo) => {
+    setRouteInfo(info);
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -228,7 +232,7 @@ export default function RideDetail({ ride, onBack, onContact, bookingSuccess = f
                 destinationLat={ride.destination_lat ?? undefined}
                 destinationLng={ride.destination_lng ?? undefined}
                 className="h-64"
-                onRouteInfoLoaded={(info) => setRouteInfo(info)}
+                onRouteInfoLoaded={handleRouteInfoLoaded}
               />
               {/* Route Statistics */}
               {routeInfo && (
@@ -469,6 +473,19 @@ export default function RideDetail({ ride, onBack, onContact, bookingSuccess = f
           </div>
         </div>
       </div>
+
+      {/* Botón para abrir el chat del viaje */}
+      {(currentUserId === ride.driver_id || (Array.isArray(ride.passengers_ids) && ride.passengers_ids.includes(currentUserId))) && (
+        <button
+          onClick={() => setShowGroupChat(true)}
+          className="w-full bg-blue-500 text-white px-6 py-4 rounded-xl font-semibold hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2 shadow-lg mt-4"
+        >
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.96 8.96 0 01-4.39-1.13l-3.11.78a1 1 0 01-1.22-1.22l.78-3.11A8.96 8.96 0 013 10c0-4.418 3.134-8 7-8s8 3.582 8 8zm-8 5c3.314 0 6-2.239 6-5s-2.686-5-6-5-6 2.239-6 5 2.686 5 6 5z" clipRule="evenodd" />
+          </svg>
+          <span>Abrir chat del viaje</span>
+        </button>
+      )}
 
       {/* Group Chat Modal */}
       {showGroupChat && currentUserId && ride && (

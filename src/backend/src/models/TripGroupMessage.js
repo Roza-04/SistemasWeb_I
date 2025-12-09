@@ -7,7 +7,7 @@ export const TripGroupMessage = sequelize.define('TripGroupMessage', {
     primaryKey: true,
     autoIncrement: true
   },
-  trip_id: {
+  ride_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
@@ -23,7 +23,7 @@ export const TripGroupMessage = sequelize.define('TripGroupMessage', {
       key: 'id'
     }
   },
-  content: {
+  message: {
     type: DataTypes.TEXT,
     allowNull: false
   },

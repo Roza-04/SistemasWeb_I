@@ -1,5 +1,5 @@
 import express from 'express';
-import { Ride, Booking, User, Payment } from '../models/index.js';
+import { Ride, Booking, User, Payment, BookingStatus } from '../models/index.js';
 import { authenticate } from '../middleware/auth.js';
 import { validate } from '../utils/validation.js';
 import Joi from 'joi';
@@ -65,7 +65,7 @@ router.post('/', authenticate, validate(createBookingSchema), async (req, res, n
       where: {
         ride_id,
         passenger_id: req.user.id,
-        status: ['PENDING', 'ACCEPTED']
+        status: [BookingStatus.PENDING, BookingStatus.CONFIRMED]
       }
     });
 
@@ -86,7 +86,7 @@ router.post('/', authenticate, validate(createBookingSchema), async (req, res, n
       passenger_id: req.user.id,
       seats,
       notes: notes || null,
-      status: 'PENDING'
+      status: BookingStatus.PENDING
     });
 
     // Update available seats (reserve them)
@@ -156,7 +156,7 @@ router.post('/:id/accept', authenticate, async (req, res, next) => {
       return res.status(403).json({ detail: 'Only the driver can accept bookings' });
     }
 
-    if (booking.status !== 'PENDING') {
+    if (booking.status !== BookingStatus.PENDING) {
       return res.status(400).json({ detail: 'Booking is not in pending status' });
     }
 
@@ -164,8 +164,8 @@ router.post('/:id/accept', authenticate, async (req, res, next) => {
     const amount = booking.ride.price_per_seat * booking.seats;
 
     // Check if there's an existing payment to capture
-    const [payment] = await sequelize.query(
-      `SELECT * FROM payments WHERE booking_id = :booking_id AND status = 'PENDING' LIMIT 1`,
+    let [payment] = await sequelize.query(
+      `SELECT * FROM payments WHERE booking_id = :booking_id AND status = 'pending' LIMIT 1`,
       {
         replacements: { booking_id: booking.id },
         type: QueryTypes.SELECT
@@ -223,16 +223,17 @@ router.post('/:id/accept', authenticate, async (req, res, next) => {
 
         // Create payment record with actual table columns
         await sequelize.query(
-          `INSERT INTO payments (id, booking_id, user_id, amount, currency, status, stripe_payment_id, stripe_client_secret, created_at, updated_at)
-           VALUES (:id, :booking_id, :user_id, :amount, 'eur', 'PENDING', :stripe_payment_id, :stripe_client_secret, NOW(), NOW())`,
+          `INSERT INTO payments (booking_id, passenger_id, driver_id, amount, platform_fee, driver_amount, status, stripe_payment_intent_id, created_at, updated_at)
+           VALUES (:booking_id, :passenger_id, :driver_id, :amount, :platform_fee, :driver_amount, 'pending', :stripe_payment_intent_id, NOW(), NOW())`,
           {
             replacements: {
-              id: `payment_${booking.id}_${Date.now()}`,
               booking_id: booking.id,
-              user_id: booking.passenger_id,
+              passenger_id: booking.passenger_id,
+              driver_id: booking.ride.driver_id,
               amount: amount,
-              stripe_payment_id: paymentIntent.id,
-              stripe_client_secret: paymentIntent.client_secret
+              platform_fee: (amount * 0.15).toFixed(2),
+              driver_amount: (amount * 0.85).toFixed(2),
+              stripe_payment_intent_id: paymentIntent.id
             },
             type: QueryTypes.INSERT
           }
@@ -248,8 +249,8 @@ router.post('/:id/accept', authenticate, async (req, res, next) => {
         );
         payment = paymentResult;
 
-        // Update booking status to ACCEPTED after successful payment
-        await booking.update({ status: 'ACCEPTED' });
+        // Update booking status to confirmed after successful payment
+        await booking.update({ status: 'confirmed' });
 
         logger.info(`💰 Payment ${payment.id} created and captured for booking ${booking.id}, amount: €${amount}`);
         
@@ -339,12 +340,12 @@ router.post('/:id/reject', authenticate, async (req, res, next) => {
       return res.status(403).json({ detail: 'Only the driver can reject bookings' });
     }
 
-    if (booking.status !== 'PENDING') {
+    if (booking.status !== BookingStatus.PENDING) {
       return res.status(400).json({ detail: 'Booking is not in pending status' });
     }
 
     // Update booking status to rejected
-    await booking.update({ status: 'REJECTED' });
+    await booking.update({ status: BookingStatus.REJECTED });
 
     logger.info(`❌ Booking ${booking.id} rejected by driver ${req.user.id}`);
 
@@ -405,11 +406,11 @@ router.post('/:id/cancel', authenticate, async (req, res, next) => {
       return res.status(403).json({ detail: 'You cannot cancel this booking' });
     }
 
-    if (booking.status === 'CANCELLED') {
+    if (booking.status === BookingStatus.CANCELLED) {
       return res.status(400).json({ detail: 'Booking already cancelled' });
     }
 
-    if (booking.status === 'COMPLETED') {
+    if (booking.status === BookingStatus.COMPLETED) {
       return res.status(400).json({ detail: 'Cannot cancel completed booking' });
     }
 
@@ -447,7 +448,7 @@ router.post('/:id/cancel', authenticate, async (req, res, next) => {
     }
 
     // Update booking status
-    await booking.update({ status: 'CANCELLED' });
+    await booking.update({ status: BookingStatus.CANCELLED });
 
     // Return seats to ride (if ride is still active)
     if (!booking.ride.is_completed && !booking.ride.is_cancelled) {
@@ -485,7 +486,7 @@ router.get('/pending-summary', authenticate, async (req, res, next) => {
         as: 'ride',
         where: { driver_id: userId }
       }],
-      where: { status: 'PENDING' }
+      where: { status: BookingStatus.PENDING }
     });
 
     return res.json({
@@ -517,7 +518,7 @@ router.get('/pending-for-driver', authenticate, async (req, res, next) => {
     const bookings = await Booking.findAll({
       where: {
         ride_id: rideIds,
-        status: 'PENDING'
+        status: BookingStatus.PENDING
       },
       include: [
         {

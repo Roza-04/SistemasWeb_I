@@ -1,6 +1,6 @@
 import express from 'express';
 import { Op, QueryTypes } from 'sequelize';
-import { Ride, User, Booking, Payment } from '../models/index.js';
+import { Ride, User, Booking, BookingStatus, Payment } from '../models/index.js';
 import { authenticate } from '../middleware/auth.js';
 import { validate } from '../utils/validation.js';
 import Joi from 'joi';
@@ -18,7 +18,7 @@ const calculateTotalSeats = async (rideId, currentAvailableSeats) => {
       `SELECT COALESCE(SUM(seats), 0) as booked_seats 
        FROM bookings 
        WHERE ride_id = :rideId 
-       AND status = 'ACCEPTED'`,
+       AND status = 'confirmed'`,
       {
         replacements: { rideId },
         type: QueryTypes.SELECT
@@ -452,7 +452,7 @@ router.get('/my-bookings', authenticate, async (req, res, next) => {
       where: {
         passenger_id: req.user.id,
         status: {
-          [Op.notIn]: ['REJECTED', 'CANCELLED']
+          [Op.notIn]: [BookingStatus.REJECTED, BookingStatus.CANCELLED]
         }
       },
       include: [
@@ -531,7 +531,7 @@ router.get('/registro', authenticate, async (req, res, next) => {
       where: {
         passenger_id: req.user.id,
         status: {
-          [Op.in]: ['COMPLETED', 'CANCELLED', 'REJECTED']
+          [Op.in]: [BookingStatus.COMPLETED, BookingStatus.CANCELLED, BookingStatus.REJECTED]
         }
       },
       include: [
@@ -587,8 +587,8 @@ router.get('/registro', authenticate, async (req, res, next) => {
     const passengerHistory = asPassenger.map(booking => {
       const departureTime = new Date(booking.ride.departure_time);
       let status = 'completed';
-      if (booking.status === 'CANCELLED') status = 'cancelled';
-      if (booking.status === 'REJECTED') status = 'rejected';
+      if (booking.status === BookingStatus.CANCELLED) status = 'cancelled';
+      if (booking.status === BookingStatus.REJECTED) status = 'rejected';
       
       return {
         id: booking.ride.id,
@@ -646,7 +646,7 @@ router.get('/:id/confirmed-users', authenticate, async (req, res, next) => {
     const bookings = await Booking.findAll({
       where: {
         ride_id: rideId,
-        status: 'ACCEPTED'
+        status: BookingStatus.CONFIRMED
       },
       include: [
         {
@@ -717,7 +717,7 @@ router.post('/:id/cancel-booking', authenticate, async (req, res, next) => {
         ride_id: rideId,
         passenger_id: req.user.id,
         status: {
-          [Op.in]: ['PENDING', 'ACCEPTED']
+          [Op.in]: [BookingStatus.PENDING, BookingStatus.CONFIRMED]
         }
       },
       include: [
@@ -809,14 +809,14 @@ router.post('/:id/cancel-booking', authenticate, async (req, res, next) => {
     }
 
     // If booking was ACCEPTED, free up the seats
-    if (booking.status === 'ACCEPTED') {
+    if (booking.status === BookingStatus.CONFIRMED) {
       const newAvailableSeats = booking.ride.available_seats + booking.seats;
       await booking.ride.update({ available_seats: newAvailableSeats });
       logger.info(`🔓 Freed ${booking.seats} seats. Available seats: ${booking.ride.available_seats} -> ${newAvailableSeats}`);
     }
 
     // Cancel the booking
-    await booking.update({ status: 'CANCELLED' });
+    await booking.update({ status: BookingStatus.CANCELLED });
 
     logger.info(`❌ Booking ${booking.id} cancelled by passenger ${req.user.id}`);
 
@@ -876,8 +876,8 @@ router.get('/:id', async (req, res, next) => {
       booked_seats: seatInfo.booked_seats,
       driver_name: rideData.driver?.full_name || 'Conductor',
       driver_avatar_url: rideData.driver?.avatar_url || null,
-      passengers_ids: rideData.bookings?.filter(b => b.status === 'ACCEPTED').map(b => b.passenger_id) || [],
-      passengers: rideData.bookings?.filter(b => b.status === 'ACCEPTED').map(b => ({
+      passengers_ids: rideData.bookings?.filter(b => b.status === BookingStatus.CONFIRMED).map(b => b.passenger_id) || [],
+      passengers: rideData.bookings?.filter(b => b.status === BookingStatus.CONFIRMED).map(b => ({
         id: b.passenger?.id,
         name: b.passenger?.full_name,
         avatar_url: b.passenger?.avatar_url
@@ -907,7 +907,7 @@ router.get('/:id/passengers', authenticate, async (req, res, next) => {
     const bookings = await Booking.findAll({
       where: {
         ride_id: req.params.id,
-        status: 'ACCEPTED'
+        status: BookingStatus.CONFIRMED
       },
       include: [
         {
@@ -946,7 +946,7 @@ router.post('/:id/complete', authenticate, async (req, res, next) => {
     const bookings = await Booking.findAll({
       where: {
         ride_id: req.params.id,
-        status: 'ACCEPTED'
+        status: BookingStatus.CONFIRMED
       }
     });
 
@@ -999,11 +999,11 @@ router.post('/:id/complete', authenticate, async (req, res, next) => {
 
     // Update bookings to completed
     await Booking.update(
-      { status: 'COMPLETED' },
+      { status: BookingStatus.COMPLETED },
       {
         where: {
           ride_id: req.params.id,
-          status: 'ACCEPTED'
+          status: BookingStatus.CONFIRMED
         }
       }
     );
@@ -1076,14 +1076,14 @@ router.post('/:id/book', authenticate, async (req, res, next) => {
     const confirmedBookings = await Booking.count({
       where: {
         ride_id: rideId,
-        status: 'ACCEPTED'
+        status: BookingStatus.CONFIRMED
       }
     });
 
     const seatsBooked = await Booking.sum('seats', {
       where: {
         ride_id: rideId,
-        status: 'ACCEPTED'
+        status: BookingStatus.CONFIRMED
       }
     }) || 0;
 
@@ -1101,7 +1101,7 @@ router.post('/:id/book', authenticate, async (req, res, next) => {
         ride_id: rideId,
         passenger_id: req.user.id,
         status: {
-          [Op.in]: ['PENDING', 'ACCEPTED']
+          [Op.in]: [BookingStatus.PENDING, BookingStatus.CONFIRMED]
         }
       }
     });
@@ -1123,7 +1123,7 @@ router.post('/:id/book', authenticate, async (req, res, next) => {
       ride_id: rideId,
       passenger_id: req.user.id,
       seats: seats,
-      status: 'PENDING'
+      status: BookingStatus.PENDING
     });
 
     let paymentStatus = 'no_payment_method';
@@ -1155,16 +1155,17 @@ router.post('/:id/book', authenticate, async (req, res, next) => {
         if (paymentIntent.status === 'requires_capture') {
           // Create payment record in database with actual table columns
           await sequelize.query(
-            `INSERT INTO payments (id, booking_id, user_id, amount, currency, status, stripe_payment_id, stripe_client_secret, created_at, updated_at)
-             VALUES (:id, :booking_id, :user_id, :amount, 'eur', 'PENDING', :stripe_payment_id, :stripe_client_secret, NOW(), NOW())`,
+            `INSERT INTO payments (booking_id, passenger_id, driver_id, amount, platform_fee, driver_amount, status, stripe_payment_intent_id, created_at, updated_at)
+             VALUES (:booking_id, :passenger_id, :driver_id, :amount, :platform_fee, :driver_amount, 'pending', :stripe_payment_intent_id, NOW(), NOW())`,
             {
               replacements: {
-                id: `payment_${booking.id}_${Date.now()}`,
                 booking_id: booking.id,
-                user_id: req.user.id,
+                passenger_id: req.user.id,
+                driver_id: ride.driver_id,
                 amount: totalPrice,
-                stripe_payment_id: paymentIntent.id,
-                stripe_client_secret: paymentIntent.client_secret
+                platform_fee: (totalPrice * 0.15).toFixed(2),
+                driver_amount: (totalPrice * 0.85).toFixed(2),
+                stripe_payment_intent_id: paymentIntent.id
               },
               type: QueryTypes.INSERT
             }
@@ -1183,12 +1184,19 @@ router.post('/:id/book', authenticate, async (req, res, next) => {
         }
       } catch (error) {
         logger.error('Failed to authorize payment:', error);
-        logger.error('Error details:', error.message, error.code);
+        logger.error('Error details:', {
+          message: error.message,
+          code: error.code,
+          type: error.type,
+          decline_code: error.decline_code,
+          payment_method_id: passenger.stripe_payment_method_id,
+          customer_id: passenger.stripe_customer_id
+        });
         // Delete booking if payment authorization fails
         await booking.destroy();
         return res.status(400).json({
           success: false,
-          detail: 'Payment authorization failed. Please check your payment method.'
+          detail: `Payment authorization failed: ${error.message || 'Please check your payment method.'}`
         });
       }
     }
@@ -1246,11 +1254,11 @@ router.delete('/:id/cancel', authenticate, async (req, res, next) => {
 
     // Cancel all pending/confirmed bookings
     await Booking.update(
-      { status: 'CANCELLED' },
+      { status: BookingStatus.CANCELLED },
       {
         where: {
           ride_id: req.params.id,
-          status: { [Op.in]: ['PENDING', 'ACCEPTED'] }
+          status: { [Op.in]: [BookingStatus.PENDING, BookingStatus.CONFIRMED] }
         }
       }
     );

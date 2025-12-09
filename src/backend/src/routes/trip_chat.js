@@ -52,9 +52,27 @@ router.get('/trips/:tripId/messages', authenticate, async (req, res) => {
       return res.status(404).json({ error: 'Trip not found' });
     }
 
+    // Verificar acceso: conductor o pasajero confirmado
+    let isDriver = trip.driver_id === userId;
+    let isPassenger = false;
+    if (!isDriver) {
+      const Booking = (await import('../models/Booking.js')).default;
+      const booking = await Booking.findOne({
+        where: {
+          ride_id: tripId,
+          passenger_id: userId,
+          status: 'confirmed'
+        }
+      });
+      isPassenger = !!booking;
+    }
+    if (!isDriver && !isPassenger) {
+      return res.status(403).json({ error: 'No tienes acceso a este chat' });
+    }
+
     // Get messages
     const messages = await TripGroupMessage.findAll({
-      where: { trip_id: tripId },
+      where: { ride_id: tripId },
       include: [{
         model: User,
         as: 'sender',
@@ -66,10 +84,10 @@ router.get('/trips/:tripId/messages', authenticate, async (req, res) => {
     res.json({
       messages: messages.map(msg => ({
         id: msg.id,
-        trip_id: msg.trip_id,
+        ride_id: msg.ride_id,
         sender_id: msg.sender_id,
         sender: msg.sender,
-        content: msg.content,
+        content: msg.message,
         created_at: msg.created_at
       }))
     });
@@ -103,14 +121,14 @@ router.post('/trips/:tripId/messages', authenticate, async (req, res) => {
     }
 
     // Create message
-    const message = await TripGroupMessage.create({
-      trip_id: tripId,
+    const newMessage = await TripGroupMessage.create({
+      ride_id: tripId,
       sender_id: userId,
-      content: content.trim()
+      message: content.trim()
     });
 
     // Fetch with sender info
-    const messageWithSender = await TripGroupMessage.findByPk(message.id, {
+    const messageWithSender = await TripGroupMessage.findByPk(newMessage.id, {
       include: [{
         model: User,
         as: 'sender',
@@ -121,10 +139,10 @@ router.post('/trips/:tripId/messages', authenticate, async (req, res) => {
     res.status(201).json({
       message: {
         id: messageWithSender.id,
-        trip_id: messageWithSender.trip_id,
+        ride_id: messageWithSender.ride_id,
         sender_id: messageWithSender.sender_id,
         sender: messageWithSender.sender,
-        content: messageWithSender.content,
+        content: messageWithSender.message,
         created_at: messageWithSender.created_at
       }
     });
